@@ -1,0 +1,354 @@
+meta {
+  name: dataByDataflow
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/data/:flowRef
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~format: 
+  ~lang: 
+}
+
+params:path {
+  flowRef: 
+}
+
+example {
+  name: 400 Response
+  description: If there is a syntactic or semantic issue with the parameters you supplied, a 400 HTTP status code will be returned.
+  
+  request: {
+    url: {{baseUrl}}/data/:flowRef
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+    }
+  
+    params:path: {
+      flowRef: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 400
+      text: Bad Request
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Im Fall eines syntaktischen oder semantischen Problems mit den übergebenen Parametern wird der HTTP-Status 400 zurückgegeben.",
+          "type": null,
+          "detail": "Period restriction 201 does not match frequency A",
+          "status": 400,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 404 Response
+  description: A 404 HTTP status code will be returned if there are no results matching the query.
+  
+  request: {
+    url: {{baseUrl}}/data/:flowRef
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+    }
+  
+    params:path: {
+      flowRef: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 404
+      text: Not Found
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Der HTTP-Status 404 wird zurückgegeben, wenn es keine auf die Anfrage passenden Ergebnisse gibt.",
+          "type": null,
+          "detail": null,
+          "status": 404,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 406 Response
+  description: If you ask for a resource representation that we don't support, a 406 HTTP status code will be returned.
+  
+  request: {
+    url: {{baseUrl}}/data/:flowRef
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+    }
+  
+    params:path: {
+      flowRef: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 406
+      text: Not Acceptable
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Wenn Sie eine Ressourcenrepräsentation anfragen, die vom Webservice nicht unterstützt wird, wird der HTTP-Status 406 zurückgegeben.",
+          "type": null,
+          "detail": null,
+          "status": 406,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 410 Response
+  description: If you ask for a resource representation that we don't support anymore, a 410 HTTP status code will be returned.
+  
+  request: {
+    url: {{baseUrl}}/data/:flowRef
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+    }
+  
+    params:path: {
+      flowRef: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 410
+      text: Gone
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Wenn Sie eine Ressourcenrepräsentation anfragen, die vom Webservice nicht mehr unterstützt wird, wird der HTTP-Status 410 zurückgegeben.",
+          "type": null,
+          "detail": null,
+          "status": 410,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 413 Response
+  description: If you ask for a resource representation that is too large, a 413 HTTP status code will be returned while the representation is prepared.
+  
+  request: {
+    url: {{baseUrl}}/data/:flowRef
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+    }
+  
+    params:path: {
+      flowRef: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 413
+      text: Payload Too Large
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "The data you have requested is being prepared. Please retry later. Estimated time remaining: Less than 1 Minute.",
+          "type": null,
+          "detail": null,
+          "status": 413,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: When there is an issue on our side, a 500 HTTP status code will be returned. Feel free to try again later.
+  
+  request: {
+    url: {{baseUrl}}/data/:flowRef
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+    }
+  
+    params:path: {
+      flowRef: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Wenn es einen Fehler von unserer Seite gibt, wird der HTTP-Status 500 zurückgegeben. Bitte versuchen Sie es später noch einmal",
+          "type": null,
+          "detail": null,
+          "status": 500,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 501 Response
+  description: This web service offers a subset of the functionality offered by the SDMX RESTful web service specification. When you use a feature that we have not yet implemented, a 501 HTTP status code will be returned.
+  
+  request: {
+    url: {{baseUrl}}/data/:flowRef
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+    }
+  
+    params:path: {
+      flowRef: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 501
+      text: Not Implemented
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Dieser Webservice bietet nur einen Teil der Funktionalität an, die von der SDMX RESTful Webservice Spezifikation angeboten wird. Wenn Sie versuchen, ein Feature zu nutzen, das wir noch nicht implementiert haben, wird der HTTP-Status 501 zurückgegeben.",
+          "type": null,
+          "detail": null,
+          "status": 501,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 503 Response
+  description: If our web service is temporarily unavailable, a 503 HTTP status code will be returned.
+  
+  request: {
+    url: {{baseUrl}}/data/:flowRef
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+    }
+  
+    params:path: {
+      flowRef: 
+    }
+  }
+  
+  response: {
+    status: {
+      code: 503
+      text: Service Unavailable
+    }
+  
+    body: {
+      type: text
+      content: '''
+  
+      '''
+    }
+  }
+}

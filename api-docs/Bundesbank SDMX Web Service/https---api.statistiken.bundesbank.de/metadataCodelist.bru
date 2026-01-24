@@ -1,0 +1,282 @@
+meta {
+  name: metadataCodelist
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/metadata/codelist/BBK/:resourceID
+  body: none
+  auth: inherit
+}
+
+params:query {
+  ~format: 
+  ~lang: 
+  ~detail: 
+  ~references: 
+}
+
+params:path {
+  resourceID: 
+}
+
+example {
+  name: 400 Response
+  description: If there is a syntactic or semantic issue with the parameters you supplied, a 400 HTTP status code will be returned.
+  
+  request: {
+    url: {{baseUrl}}/metadata/codelist/BBK/:resourceID
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+      ~detail: 
+      ~references: 
+    }
+  
+    params:path: {
+      resourceID: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 400
+      text: Bad Request
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Im Fall eines syntaktischen oder semantischen Problems mit den übergebenen Parametern wird der HTTP-Status 400 zurückgegeben.",
+          "type": null,
+          "detail": "Period restriction 201 does not match frequency A",
+          "status": 400,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 404 Response
+  description: A 404 HTTP status code will be returned if there are no results matching the query.
+  
+  request: {
+    url: {{baseUrl}}/metadata/codelist/BBK/:resourceID
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+      ~detail: 
+      ~references: 
+    }
+  
+    params:path: {
+      resourceID: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 404
+      text: Not Found
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Der HTTP-Status 404 wird zurückgegeben, wenn es keine auf die Anfrage passenden Ergebnisse gibt.",
+          "type": null,
+          "detail": null,
+          "status": 404,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 406 Response
+  description: If you ask for a resource representation that we don't support, a 406 HTTP status code will be returned.
+  
+  request: {
+    url: {{baseUrl}}/metadata/codelist/BBK/:resourceID
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+      ~detail: 
+      ~references: 
+    }
+  
+    params:path: {
+      resourceID: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 406
+      text: Not Acceptable
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Wenn Sie eine Ressourcenrepräsentation anfragen, die vom Webservice nicht unterstützt wird, wird der HTTP-Status 406 zurückgegeben.",
+          "type": null,
+          "detail": null,
+          "status": 406,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 500 Response
+  description: When there is an issue on our side, a 500 HTTP status code will be returned. Feel free to try again later.
+  
+  request: {
+    url: {{baseUrl}}/metadata/codelist/BBK/:resourceID
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+      ~detail: 
+      ~references: 
+    }
+  
+    params:path: {
+      resourceID: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 500
+      text: Internal Server Error
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Wenn es einen Fehler von unserer Seite gibt, wird der HTTP-Status 500 zurückgegeben. Bitte versuchen Sie es später noch einmal",
+          "type": null,
+          "detail": null,
+          "status": 500,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 501 Response
+  description: This web service offers a subset of the functionality offered by the SDMX RESTful web service specification. When you use a feature that we have not yet implemented, a 501 HTTP status code will be returned.
+  
+  request: {
+    url: {{baseUrl}}/metadata/codelist/BBK/:resourceID
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+      ~detail: 
+      ~references: 
+    }
+  
+    params:path: {
+      resourceID: 
+    }
+  }
+  
+  response: {
+    headers: {
+      Content-Type: application/json
+    }
+  
+    status: {
+      code: 501
+      text: Not Implemented
+    }
+  
+    body: {
+      type: json
+      content: '''
+        {
+          "title": "Dieser Webservice bietet nur einen Teil der Funktionalität an, die von der SDMX RESTful Webservice Spezifikation angeboten wird. Wenn Sie versuchen, ein Feature zu nutzen, das wir noch nicht implementiert haben, wird der HTTP-Status 501 zurückgegeben.",
+          "type": null,
+          "detail": null,
+          "status": 501,
+          "instance": null
+        }
+      '''
+    }
+  }
+}
+
+example {
+  name: 503 Response
+  description: If our web service is temporarily unavailable, a 503 HTTP status code will be returned.
+  
+  request: {
+    url: {{baseUrl}}/metadata/codelist/BBK/:resourceID
+    method: GET
+    mode: none
+    params:query: {
+      ~format: 
+      ~lang: 
+      ~detail: 
+      ~references: 
+    }
+  
+    params:path: {
+      resourceID: 
+    }
+  }
+  
+  response: {
+    status: {
+      code: 503
+      text: Service Unavailable
+    }
+  
+    body: {
+      type: text
+      content: '''
+  
+      '''
+    }
+  }
+}

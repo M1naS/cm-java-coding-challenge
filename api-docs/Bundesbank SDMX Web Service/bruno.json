@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "Bundesbank SDMX Web Service",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
