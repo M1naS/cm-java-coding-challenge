@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/data/:flowRef/:key
+  url: {{baseUrl}}/data/:flowRef/:key?lang=en&format=sdmx_json
   body: none
   auth: inherit
 }
 
 params:query {
-  ~format: 
-  ~lang: 
+  lang: en
+  format: sdmx_json
   ~startPeriod: 
   ~endPeriod: 
   ~preparedAfter: 
@@ -26,8 +26,8 @@ params:query {
 }
 
 params:path {
-  flowRef: 
-  key: 
+  flowRef: BBEX3
+  key: D.USD.EUR.BB.AC.000
 }
 
 example {

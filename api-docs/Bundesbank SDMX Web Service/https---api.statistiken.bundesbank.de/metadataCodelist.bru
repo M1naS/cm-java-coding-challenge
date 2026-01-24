@@ -5,20 +5,20 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/metadata/codelist/BBK/:resourceID
+  url: {{baseUrl}}/metadata/codelist/BBK/:resourceID?lang=en&format=struct_json
   body: none
   auth: inherit
 }
 
 params:query {
-  ~format: 
-  ~lang: 
+  lang: en
+  format: struct_json
   ~detail: 
   ~references: 
 }
 
 params:path {
-  resourceID: 
+  resourceID: CL_BBK_STD_CURRENCY
 }
 
 example {

@@ -5,15 +5,15 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/metadata/codelist/BBK
+  url: {{baseUrl}}/metadata/codelist/BBK?lang=en&format=struct_json&detail=nameonly
   body: none
   auth: inherit
 }
 
 params:query {
-  ~format: 
-  ~lang: 
-  ~detail: 
+  lang: en
+  format: struct_json
+  detail: nameonly
 }
 
 example {
