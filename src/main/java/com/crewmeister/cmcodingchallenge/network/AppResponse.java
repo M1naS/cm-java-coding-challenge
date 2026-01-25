@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class HttpResponse<T> {
+public class AppResponse<T> {
     private final T body;
     private final int statusCode;
 }

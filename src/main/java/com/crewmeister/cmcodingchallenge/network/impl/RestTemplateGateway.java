@@ -1,8 +1,8 @@
 package com.crewmeister.cmcodingchallenge.network.impl;
 
-import com.crewmeister.cmcodingchallenge.network.HttpClient;
-import com.crewmeister.cmcodingchallenge.network.HttpRequest;
-import com.crewmeister.cmcodingchallenge.network.HttpResponse;
+import com.crewmeister.cmcodingchallenge.network.HttpGateway;
+import com.crewmeister.cmcodingchallenge.network.AppRequest;
+import com.crewmeister.cmcodingchallenge.network.AppResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -10,12 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
-public class RestTemplateClient implements HttpClient {
+public class RestTemplateGateway implements HttpGateway {
 
     private final RestTemplate restTemplate;
 
     @Override
-    public <T> HttpResponse<T> send(HttpRequest request, Class<T> responseType) {
+    public <T> AppResponse<T> send(AppRequest request, Class<T> responseType) {
         ResponseEntity<T> responseEntity = restTemplate.exchange(
                 request.getUrl(),
                 HttpMethod.valueOf(request.getMethod().toString()),
@@ -23,6 +23,6 @@ public class RestTemplateClient implements HttpClient {
                 responseType
         );
 
-        return new HttpResponse<>(responseEntity.getBody(), responseEntity.getStatusCodeValue());
+        return new AppResponse<>(responseEntity.getBody(), responseEntity.getStatusCodeValue());
     }
 }

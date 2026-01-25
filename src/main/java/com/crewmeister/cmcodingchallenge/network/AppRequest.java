@@ -6,7 +6,7 @@ import org.springframework.util.MultiValueMap;
 
 @Getter
 @Builder
-public class HttpRequest {
+public class AppRequest {
     private final MultiValueMap<String, String> headers;
     private final HttpMethod method;
     private final String url;
