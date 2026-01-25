@@ -1,0 +1,32 @@
+package exception;
+
+import com.crewmeister.cmcodingchallenge.network.AppResponse;
+import com.crewmeister.cmcodingchallenge.network.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
+
+@ControllerAdvice
+@Slf4j
+public class GlobalExceptionHandler {
+    @ExceptionHandler(SerializationException.class)
+    public AppResponse<ErrorResponse> handleSerializationException(
+            SerializationException serializationException,
+            HttpServletRequest request
+    ) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(serializationException.getStatus().value())
+                .error(serializationException.getStatus().getReasonPhrase())
+                .message(serializationException.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        log.error(serializationException.getMessage());
+
+        return new AppResponse<>(errorResponse, serializationException.getStatus().value());
+    }
+}
