@@ -1,6 +1,6 @@
 package com.crewmeister.cmcodingchallenge.integration;
 
-import com.crewmeister.cmcodingchallenge.domain.CurrencyDto;
+import com.crewmeister.cmcodingchallenge.integration.dto.CurrencyDto;
 
 import java.util.List;
 
