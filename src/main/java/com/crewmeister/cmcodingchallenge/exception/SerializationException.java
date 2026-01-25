@@ -1,4 +1,4 @@
-package exception;
+package com.crewmeister.cmcodingchallenge.exception;
 
 import org.springframework.http.HttpStatus;
 

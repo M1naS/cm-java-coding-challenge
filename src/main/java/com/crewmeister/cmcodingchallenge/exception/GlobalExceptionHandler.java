@@ -1,15 +1,15 @@
-package exception;
+package com.crewmeister.cmcodingchallenge.exception;
 
 import com.crewmeister.cmcodingchallenge.network.AppResponse;
 import com.crewmeister.cmcodingchallenge.network.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 
-@ControllerAdvice
+@RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(SerializationException.class)

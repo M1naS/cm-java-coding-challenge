@@ -1,13 +1,13 @@
 package com.crewmeister.cmcodingchallenge.integration.dto;
 
 
+import com.crewmeister.cmcodingchallenge.exception.SerializationException;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import exception.SerializationException;
 
 import java.io.IOException;
 import java.util.ArrayList;
