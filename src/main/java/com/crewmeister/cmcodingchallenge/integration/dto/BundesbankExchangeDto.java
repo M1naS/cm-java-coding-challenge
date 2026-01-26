@@ -13,7 +13,10 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -28,6 +31,7 @@ public class BundesbankExchangeDto extends ExchangeDto {
         @Override
         public BundesbankExchangeDto deserialize(JsonParser jsonParser, DeserializationContext context) {
             BundesbankExchangeDto exchange = new BundesbankExchangeDto();
+            List<ExchangeRateDto> exchangeRates = new ArrayList<>();
             if (jsonParser instanceof CsvParser) {
                 CsvParser csvParser = (CsvParser) jsonParser;
 
@@ -35,7 +39,19 @@ public class BundesbankExchangeDto extends ExchangeDto {
                 try {
                     JsonNode node = mapper.readTree(jsonParser);
 
-                    exchange.setDate(LocalDate.parse(node.get("TIME_PERIOD").asText()));
+                    LocalDate date = LocalDate.parse(node.get("TIME_PERIOD").asText());
+                    exchange.setDate(date);
+
+                    if (!node.get("OBS_VALUE").asText().equals("K")) {
+                        exchangeRates.add(
+                                new ExchangeRateDto(
+                                        node.get("BBK_STD_CURRENCY").asText(),
+                                        new BigDecimal(node.get("OBS_VALUE").asText())
+                                )
+                        );
+                    }
+                    exchange.setRates(exchangeRates);
+
                 } catch (IOException ioException) {
                     throw new SerializationException("Could not deserialize exchange rates list", ioException);
                 }
