@@ -1,8 +1,8 @@
 package com.crewmeister.cmcodingchallenge.exception;
 
-import com.crewmeister.cmcodingchallenge.network.AppResponse;
 import com.crewmeister.cmcodingchallenge.network.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Slf4j
 public class GlobalExceptionHandler {
     @ExceptionHandler(SerializationException.class)
-    public AppResponse<ErrorResponse> handleSerializationException(
+    public ResponseEntity<ErrorResponse> handleSerializationException(
             SerializationException serializationException,
             HttpServletRequest request
     ) {
@@ -27,6 +27,6 @@ public class GlobalExceptionHandler {
 
         log.error(serializationException.getMessage());
 
-        return new AppResponse<>(errorResponse, serializationException.getStatus().value());
+        return new ResponseEntity<>(errorResponse, serializationException.getStatus());
     }
 }

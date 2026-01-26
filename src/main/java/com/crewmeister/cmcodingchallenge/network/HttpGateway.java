@@ -1,5 +1,7 @@
 package com.crewmeister.cmcodingchallenge.network;
 
+import org.springframework.http.ResponseEntity;
+
 public interface HttpGateway {
-    <T> AppResponse<T> send(AppRequest request, Class<T> responseType);
+    <T> ResponseEntity<T> send(AppRequest request, Class<T> responseType);
 }
