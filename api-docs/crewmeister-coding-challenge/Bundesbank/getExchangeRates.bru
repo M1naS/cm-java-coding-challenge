@@ -1,0 +1,22 @@
+meta {
+  name: getExchangeRates
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/bundesbank/exchange-rates?lang=en&lastObservations=1&provider=local
+  body: none
+  auth: inherit
+}
+
+params:query {
+  lang: en
+  lastObservations: 1
+  provider: local
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}
