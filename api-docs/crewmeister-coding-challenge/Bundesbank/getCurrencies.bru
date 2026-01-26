@@ -5,9 +5,13 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/currencies
+  url: {{baseUrl}}/api/v1/bundesbank/currencies?lang=en
   body: none
   auth: inherit
+}
+
+params:query {
+  lang: en
 }
 
 settings {
