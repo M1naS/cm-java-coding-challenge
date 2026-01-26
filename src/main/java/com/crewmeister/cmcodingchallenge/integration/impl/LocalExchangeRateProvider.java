@@ -1,0 +1,61 @@
+package com.crewmeister.cmcodingchallenge.integration.impl;
+
+import com.crewmeister.cmcodingchallenge.exception.SerializationException;
+import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
+import com.crewmeister.cmcodingchallenge.integration.dto.*;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvParser;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+@RequiredArgsConstructor
+@Service("local")
+@Slf4j
+public class LocalExchangeRateProvider implements ExchangeRateProvider {
+    private final ResourceLoader resourceLoader;
+
+    @Override
+    public String getProviderName() {
+        return "Local Provider";
+    }
+
+    @Override
+    public List<? extends CurrencyDto> getCurrencies(CurrencyRequest request) {
+        return List.of();
+    }
+
+    @Override
+    public List<BundesbankExchangeDto> getExchangeRates(ExchangeRequest request) {
+
+        Resource resource = resourceLoader.getResource("classpath:payloads/sdmx_csv-dataonly-1.csv");
+        List<BundesbankExchangeDto> response = new ArrayList<>();
+
+        CsvMapper csvMapper = new CsvMapper();
+        csvMapper.enable(CsvParser.Feature.SKIP_EMPTY_LINES);
+
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+        try (
+                MappingIterator<BundesbankExchangeDto> iterator = csvMapper.readerFor(BundesbankExchangeDto.class)
+                                .with(schema)
+                                .readValues(resource.getFile())
+        ) {
+            while (iterator.hasNext()) {
+                    response.add(iterator.next());
+            }
+        } catch (IOException ioException) {
+            throw new SerializationException("Could not deserialize exchange rates list", ioException);
+        }
+
+        return response;
+    }
+}
