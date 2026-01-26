@@ -7,5 +7,5 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BundesbankExchangeRequest implements ExchangeRequest {
     private final String lang;
-    private final int lastObservations;
+    private final int lastNObservations;
 }

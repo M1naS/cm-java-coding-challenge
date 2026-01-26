@@ -5,14 +5,14 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/v1/bundesbank/exchange-rates?lang=en&lastObservations=1&provider=local
+  url: {{baseUrl}}/api/v1/bundesbank/exchange-rates?lang=en&lastNObservations=1&provider=local
   body: none
   auth: inherit
 }
 
 params:query {
   lang: en
-  lastObservations: 1
+  lastNObservations: 1
   provider: local
 }
 

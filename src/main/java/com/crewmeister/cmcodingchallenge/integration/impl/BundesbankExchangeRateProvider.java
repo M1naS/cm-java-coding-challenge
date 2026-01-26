@@ -91,7 +91,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 .path(bundesbankProperties.getDataPath())
                 .queryParam("lang", ((BundesbankExchangeRequest) exchangeRequest).getLang())
                 .queryParam("format", bundesbankProperties.getDataFormat())
-                .queryParam("lastNObservations", ((BundesbankExchangeRequest) exchangeRequest).getLastObservations())
+                .queryParam("lastNObservations", ((BundesbankExchangeRequest) exchangeRequest).getLastNObservations())
                 .buildAndExpand(
                         Map.of(
                                 "flowRef", "BBEX3",
