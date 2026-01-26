@@ -5,20 +5,20 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/data/:flowRef/:key?lang=en&format=sdmx_json
+  url: {{baseUrl}}/data/:flowRef/:key?lang=en&format=sdmx_csv&detail=dataonly&lastNObservations=1
   body: none
   auth: inherit
 }
 
 params:query {
   lang: en
-  format: sdmx_json
+  format: sdmx_csv
+  detail: dataonly
+  lastNObservations: 1
   ~startPeriod: 
   ~endPeriod: 
   ~preparedAfter: 
-  ~detail: 
   ~firstNObservations: 
-  ~lastNObservations: 
   ~firstNVintages: 
   ~lastNVintages: 
   ~startVintage: 
@@ -27,7 +27,7 @@ params:query {
 
 params:path {
   flowRef: BBEX3
-  key: D.USD.EUR.BB.AC.000
+  key: D..EUR.BB.AC.000
 }
 
 example {
