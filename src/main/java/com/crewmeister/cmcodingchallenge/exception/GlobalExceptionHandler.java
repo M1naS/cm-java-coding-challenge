@@ -12,6 +12,25 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
+    @ExceptionHandler(AppException.class)
+    public ResponseEntity<ErrorResponse> handleAppException(
+            AppException appException,
+            HttpServletRequest request
+    ) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(appException.getStatus().value())
+                .error(appException.getStatus().getReasonPhrase())
+                .message(appException.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        log.error(appException.getMessage());
+
+        return new ResponseEntity<>(errorResponse, appException.getStatus());
+    }
+
+
     @ExceptionHandler(SerializationException.class)
     public ResponseEntity<ErrorResponse> handleSerializationException(
             SerializationException serializationException,
