@@ -23,7 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Service
+@Service("bundesbank")
 @Slf4j
 public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
 
