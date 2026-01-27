@@ -4,6 +4,7 @@ import com.crewmeister.cmcodingchallenge.exception.AppException;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.integration.dto.*;
 import com.crewmeister.cmcodingchallenge.network.AppResponse;
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +45,7 @@ public class BundesbankExchangeRateController {
     }
 
     @GetMapping("/available/currencies")
-    public ResponseEntity<AppResponse<List<String>>> getAvailableCurrencies(
+    public ResponseEntity<AppResponse<JsonNode>> getAvailableCurrencies(
             @RequestParam(required = false, defaultValue = "de") String lang,
             @RequestParam(required = false, defaultValue = "bundesbank") String provider
     ) {
@@ -57,7 +58,7 @@ public class BundesbankExchangeRateController {
             currencyRequest = new BundesbankCurrencyRequest(lang);
         }
 
-        AppResponse<List<String>> currenciesAppResponse = new AppResponse<>(
+        AppResponse<JsonNode> currenciesAppResponse = new AppResponse<>(
                 providers.get(provider).getAvailableCurrencies(currencyRequest),
                 HttpStatus.OK.value()
         );

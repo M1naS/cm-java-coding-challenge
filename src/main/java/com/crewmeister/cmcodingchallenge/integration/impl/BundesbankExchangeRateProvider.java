@@ -3,11 +3,13 @@ package com.crewmeister.cmcodingchallenge.integration.impl;
 import com.crewmeister.cmcodingchallenge.config.BundesbankProperties;
 import com.crewmeister.cmcodingchallenge.exception.AppException;
 import com.crewmeister.cmcodingchallenge.exception.BundesbankExchangeRateException;
+import com.crewmeister.cmcodingchallenge.integration.BundesbankMapper;
 import com.crewmeister.cmcodingchallenge.integration.dto.*;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.network.HttpGateway;
 import com.crewmeister.cmcodingchallenge.network.AppRequest;
 import com.crewmeister.cmcodingchallenge.network.impl.RestTemplateGateway;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
@@ -24,7 +26,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +36,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
 
     private final BundesbankProperties bundesbankProperties;
     private final RestTemplate restTemplate;
+    private final BundesbankMapper bundesbankMapper;
 
     @Override
     public String getProviderName() {
@@ -82,9 +84,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<String> getAvailableCurrencies(CurrencyRequest currencyRequest) {
-        List<String> currencyList = new ArrayList<>();
-
+    public JsonNode getAvailableCurrencies(CurrencyRequest currencyRequest) {
         String url = UriComponentsBuilder
                 .fromUriString(bundesbankProperties.getBaseUrl())
                 .path(bundesbankProperties.getDataPath())
@@ -111,25 +111,11 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
 
         try {
 //            currencyList = client.send(request, BundesbankDataCurrencyListDto.class).getBody();
-            restTemplate.execute(url, HttpMethod.GET, null, response -> {
-                InputStream stream = response.getBody();
-
-                CsvMapper csvMapper = new CsvMapper();
-                csvMapper.enable(CsvParser.Feature.SKIP_EMPTY_LINES);
-
-                CsvSchema schema = CsvSchema.emptySchema().withHeader();
-
-                MappingIterator<HashMap<String, String>> iterator = csvMapper.readerFor(Object.class)
-                        .with(schema)
-                        .readValues(stream);
-
-                while (iterator.hasNext()) {
-                    HashMap<String, String> currencyMap = iterator.next();
-                    currencyList.add(currencyMap.get("BBK_STD_CURRENCY"));
-                }
-
-                return currencyList;
-            });
+            return restTemplate.execute(url,
+                    HttpMethod.GET,
+                    null,
+                    response -> bundesbankMapper.parseToAvailableCurrencies(response.getBody())
+            );
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
                     restClientResponseException.getResponseBodyAsString(),
@@ -142,7 +128,6 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                     HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
-        return currencyList;
     }
 
     @Override

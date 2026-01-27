@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.io.IOException;
 import java.io.InputStream;
 
 @RequiredArgsConstructor
+@Getter
 public class BundesbankMapper {
     private final CsvMapper csvMapper;
 
@@ -26,7 +28,7 @@ public class BundesbankMapper {
                     .readValues(csvInputStream);
 
             while (nodeIterator.hasNext()) {
-                root.add(nodeIterator.next().get("BBK_STD_CURRENCY"));
+                root.add(nodeIterator.next().get("BBK_STD_CURRENCY").asText());
             }
 
             return root;

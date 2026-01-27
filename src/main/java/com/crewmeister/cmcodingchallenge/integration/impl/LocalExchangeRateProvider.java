@@ -3,6 +3,7 @@ package com.crewmeister.cmcodingchallenge.integration.impl;
 import com.crewmeister.cmcodingchallenge.exception.SerializationException;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.integration.dto.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
@@ -34,8 +35,8 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<String> getAvailableCurrencies(CurrencyRequest request) {
-        return List.of();
+    public JsonNode getAvailableCurrencies(CurrencyRequest request) {
+        return null;
     }
 
     @Override
