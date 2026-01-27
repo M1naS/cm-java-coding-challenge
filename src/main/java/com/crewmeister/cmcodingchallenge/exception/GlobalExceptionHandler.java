@@ -9,8 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
@@ -91,5 +93,27 @@ public class GlobalExceptionHandler {
         log.error(serializationException.getMessage());
 
         return new ResponseEntity<>(errorResponse, serializationException.getStatus());
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ErrorResponse> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException methodArgumentTypeMismatchException,
+            HttpServletRequest request
+    ) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Invalid input format")
+                .message(methodArgumentTypeMismatchException.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        if (methodArgumentTypeMismatchException.getRequiredType() == LocalDate.class) {
+            errorResponse.setMessage(methodArgumentTypeMismatchException.getValue() + " is invalid, format should be (YYYY-MM-DD)");
+        }
+
+        log.error(methodArgumentTypeMismatchException.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 }

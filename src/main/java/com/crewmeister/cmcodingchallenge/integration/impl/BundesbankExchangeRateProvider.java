@@ -170,4 +170,51 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
             );
         }
     }
+
+    @Override
+    public JsonNode getExchangeRatesByDate(ExchangeRequest exchangeRequest) {
+        String url = UriComponentsBuilder
+                .fromUriString(bundesbankProperties.getBaseUrl())
+                .path(bundesbankProperties.getDataPath())
+                .queryParam("lang", "en")
+                .queryParam("format", bundesbankProperties.getDataFormat())
+                .queryParam("lastNObservations", 1)
+                .queryParam("endPeriod", ((BundesbankExchangeRequest) exchangeRequest).getDate().toString())
+                .buildAndExpand(
+                        Map.of(
+                                "flowRef", "BBEX3",
+                                "key", "D..EUR.BB.AC.000"
+                        )
+                )
+                .toUriString();
+
+//        HttpGateway client = new RestTemplateGateway(restTemplate);
+        RestTemplate restTemplate = new RestTemplate();
+
+//        AppRequest request = AppRequest.builder()
+//                .method(AppRequest.HttpMethod.GET)
+//                .url(url)
+//                .build();
+
+        log.info("Getting exchange rates of {} from {}", ((BundesbankExchangeRequest) exchangeRequest).getDate().toString(), getProviderName());
+
+        try {
+            return restTemplate.execute(url,
+                    HttpMethod.GET,
+                    null,
+                    response -> bundesbankMapper.parseToExchangeRate(response.getBody()).get(((BundesbankExchangeRequest) exchangeRequest).getDate().toString())
+            );
+        } catch (RestClientResponseException restClientResponseException) {
+            throw new BundesbankExchangeRateException(
+                    restClientResponseException.getResponseBodyAsString(),
+                    restClientResponseException.getCause()
+            );
+        } catch (ResourceAccessException resourceAccessException) {
+            throw new AppException(
+                    resourceAccessException.getMessage(),
+                    resourceAccessException.getCause(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
 }

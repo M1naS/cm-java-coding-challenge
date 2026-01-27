@@ -60,4 +60,9 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
 
         return bundesbankMapper.getCsvMapper().createObjectNode();
     }
+
+    @Override
+    public JsonNode getExchangeRatesByDate(ExchangeRequest exchangeRequest) {
+        return null;
+    }
 }
