@@ -1,0 +1,23 @@
+meta {
+  name: getConvertedForeignExchangeAmount
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/bundesbank/convert?date=2026-01-27&currencyCode=USD&amount=10
+  body: none
+  auth: inherit
+}
+
+params:query {
+  date: 2026-01-27
+  currencyCode: USD
+  amount: 10
+  ~provider: local
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

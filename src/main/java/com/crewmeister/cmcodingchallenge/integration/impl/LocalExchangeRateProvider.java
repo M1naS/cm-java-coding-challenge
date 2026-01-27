@@ -58,11 +58,16 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
 //            throw new SerializationException("Could not deserialize exchange rates list", ioException);
 //        }
 
-        return bundesbankMapper.getCsvMapper().createObjectNode();
+        return bundesbankMapper.getJsonMapper().createObjectNode();
     }
 
     @Override
     public JsonNode getExchangeRatesByDate(ExchangeRequest exchangeRequest) {
+        return null;
+    }
+
+    @Override
+    public JsonNode getConvertedForeignExchangeAmount(ExchangeRequest request) {
         return null;
     }
 }

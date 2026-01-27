@@ -9,6 +9,7 @@ import com.crewmeister.cmcodingchallenge.network.HttpGateway;
 import com.crewmeister.cmcodingchallenge.network.AppRequest;
 import com.crewmeister.cmcodingchallenge.network.impl.RestTemplateGateway;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -19,6 +20,8 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 
@@ -216,5 +219,49 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                     HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
+    }
+
+    @Override
+    public JsonNode getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest) {
+        BundesbankExchangeRequest bundesbankExchangeRequest = (BundesbankExchangeRequest) exchangeRequest;
+
+        ObjectNode result = bundesbankMapper.getJsonMapper().createObjectNode();
+        JsonNode exchangeRatesByDate = getExchangeRatesByDate(
+                BundesbankExchangeRequest.builder()
+                        .lastNObservations(1)
+                        .date(bundesbankExchangeRequest.getDate())
+                        .build()
+        );
+
+        log.info("Converting {}, from {} to EUR for date {} using {}",
+                bundesbankExchangeRequest.getAmount(),
+                bundesbankExchangeRequest.getCurrencyCode(),
+                bundesbankExchangeRequest.getDate().toString(),
+                getProviderName()
+        );
+
+        if (exchangeRatesByDate == null)
+            throw new AppException("Could not get exchange rate", HttpStatus.INTERNAL_SERVER_ERROR);
+
+        try {
+            BigDecimal rate = new BigDecimal(exchangeRatesByDate.required(bundesbankExchangeRequest.getCurrencyCode()).asText());
+
+            if (rate.compareTo(BigDecimal.ZERO) == 0) {
+                throw new AppException("Exchange rate cannot be zero", HttpStatus.BAD_REQUEST);
+            }
+
+            result.put("date", bundesbankExchangeRequest.getDate().toString());
+            result.put("rate", rate);
+            result.put("currencyCode", bundesbankExchangeRequest.getCurrencyCode());
+            result.put("amount", bundesbankExchangeRequest.getAmount());
+            result.put(
+                    "converted",
+                    bundesbankExchangeRequest.getAmount().divide(rate, 2, RoundingMode.HALF_UP)
+            );
+        } catch (IllegalArgumentException illegalArgumentException) {
+            throw new  AppException("No support for currency " + bundesbankExchangeRequest.getCurrencyCode(), HttpStatus.BAD_REQUEST);
+        }
+
+        return result;
     }
 }

@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +87,10 @@ public class BundesbankExchangeRateController {
 
         ExchangeRequest exchangeRequest = null;
         if (provider.equals("bundesbank")) {
-            exchangeRequest = new BundesbankExchangeRequest(lastNObservations,  date);
+            exchangeRequest = BundesbankExchangeRequest.builder()
+                    .lastNObservations(lastNObservations)
+                    .date(date)
+                    .build();
         } else if (provider.equals("local")) {
             exchangeRequest = new LocalExchangeRequest();
         }
@@ -111,6 +115,43 @@ public class BundesbankExchangeRateController {
                     HttpStatus.OK
             );
         }
+        throw new AppException("Exchange rates not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping("/convert")
+    public ResponseEntity<AppResponse<JsonNode>> getConvertedForeignExchangeAmount(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam String currencyCode,
+            @RequestParam BigDecimal amount,
+            @RequestParam(required = false, defaultValue = "bundesbank") String provider
+    ) {
+        if (providers.get(provider) == null) {
+            throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
+        }
+
+        ExchangeRequest exchangeRequest = null;
+        if (provider.equals("bundesbank")) {
+            exchangeRequest = BundesbankExchangeRequest.builder()
+                    .date(date)
+                    .currencyCode(currencyCode)
+                    .amount(amount)
+                    .build();
+        } else if (provider.equals("local")) {
+            exchangeRequest = new LocalExchangeRequest();
+        }
+
+        AppResponse<JsonNode> exchangeAppResponse = new AppResponse<>(
+                providers.get(provider).getConvertedForeignExchangeAmount(exchangeRequest),
+                HttpStatus.OK.value()
+        );
+
+        if (exchangeAppResponse.getBody() != null) {
+            return new ResponseEntity<>(
+                    exchangeAppResponse,
+                    HttpStatus.OK
+            );
+        }
+
         throw new AppException("Exchange rates not found", HttpStatus.NOT_FOUND);
     }
 }

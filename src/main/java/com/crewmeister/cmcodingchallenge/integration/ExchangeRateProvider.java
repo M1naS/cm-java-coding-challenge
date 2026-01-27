@@ -15,4 +15,6 @@ public interface ExchangeRateProvider {
     JsonNode getExchangeRates(ExchangeRequest request);
 
     JsonNode getExchangeRatesByDate(ExchangeRequest request);
+
+    JsonNode getConvertedForeignExchangeAmount(ExchangeRequest request);
 }
