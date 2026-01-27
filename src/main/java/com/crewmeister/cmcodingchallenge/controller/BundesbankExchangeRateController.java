@@ -43,6 +43,30 @@ public class BundesbankExchangeRateController {
         );
     }
 
+    @GetMapping("/available/currencies")
+    public ResponseEntity<AppResponse<List<String>>> getAvailableCurrencies(
+            @RequestParam(required = false, defaultValue = "de") String lang,
+            @RequestParam(required = false, defaultValue = "bundesbank") String provider
+    ) {
+        if (providers.get(provider) == null) {
+            throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
+        }
+
+        CurrencyRequest currencyRequest = null;
+        if (provider.equals("bundesbank")) {
+            currencyRequest = new BundesbankCurrencyRequest(lang);
+        }
+
+        AppResponse<List<String>> currenciesAppResponse = new AppResponse<>(
+                providers.get(provider).getAvailableCurrencies(currencyRequest),
+                HttpStatus.OK.value()
+        );
+        return new ResponseEntity<>(
+                currenciesAppResponse,
+                HttpStatus.OK
+        );
+    }
+
     @GetMapping("/exchange-rates")
     public ResponseEntity<AppResponse<List<? extends ExchangeDto>>> getExchangeRates(
             @RequestParam(required = false, defaultValue = "de") String lang,

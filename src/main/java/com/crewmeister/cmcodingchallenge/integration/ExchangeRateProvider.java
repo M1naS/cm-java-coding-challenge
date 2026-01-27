@@ -9,5 +9,7 @@ public interface ExchangeRateProvider {
 
     List<? extends CurrencyDto> getAllCurrencies(CurrencyRequest request);
 
+    List<String> getAvailableCurrencies(CurrencyRequest request);
+
     List<? extends ExchangeDto> getExchangeRates(ExchangeRequest request);
 }

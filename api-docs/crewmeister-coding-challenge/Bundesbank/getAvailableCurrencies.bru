@@ -1,11 +1,11 @@
 meta {
-  name: getCurrencies
+  name: getAvailableCurrencies
   type: http
-  seq: 1
+  seq: 3
 }
 
 get {
-  url: {{baseUrl}}/api/v1/bundesbank/all/currencies?lang=en
+  url: {{baseUrl}}/api/v1/bundesbank/available/currencies?lang=en
   body: none
   auth: inherit
 }

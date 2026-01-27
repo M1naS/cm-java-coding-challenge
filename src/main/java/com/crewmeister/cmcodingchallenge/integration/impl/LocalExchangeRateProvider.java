@@ -34,6 +34,11 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
+    public List<String> getAvailableCurrencies(CurrencyRequest request) {
+        return List.of();
+    }
+
+    @Override
     public List<BundesbankExchangeDto> getExchangeRates(ExchangeRequest request) {
 
         Resource resource = resourceLoader.getResource("classpath:payloads/sdmx_csv-dataonly-1.csv");

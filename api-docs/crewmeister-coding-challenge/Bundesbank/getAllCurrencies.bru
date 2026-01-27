@@ -1,0 +1,21 @@
+meta {
+  name: getAllCurrencies
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/bundesbank/all/currencies?lang=en
+  body: none
+  auth: inherit
+}
+
+params:query {
+  lang: en
+  ~provider: 
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

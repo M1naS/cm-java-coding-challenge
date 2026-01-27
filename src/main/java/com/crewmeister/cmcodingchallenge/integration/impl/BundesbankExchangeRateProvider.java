@@ -24,6 +24,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +66,70 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
 
         try {
             currencyList = client.send(request, BundesbankCurrencyListDto.class).getBody();
+        } catch (RestClientResponseException restClientResponseException) {
+            throw new BundesbankExchangeRateException(
+                    restClientResponseException.getResponseBodyAsString(),
+                    restClientResponseException.getCause()
+            );
+        } catch (ResourceAccessException resourceAccessException) {
+            throw new AppException(
+                    resourceAccessException.getMessage(),
+                    resourceAccessException.getCause(),
+                    HttpStatus.INTERNAL_SERVER_ERROR
+            );
+        }
+        return currencyList;
+    }
+
+    @Override
+    public List<String> getAvailableCurrencies(CurrencyRequest currencyRequest) {
+        List<String> currencyList = new ArrayList<>();
+
+        String url = UriComponentsBuilder
+                .fromUriString(bundesbankProperties.getBaseUrl())
+                .path(bundesbankProperties.getDataPath())
+                .queryParam("lang", ((BundesbankCurrencyRequest) currencyRequest).getLang())
+                .queryParam("format", "sdmx_csv")
+                .queryParam("lastNObservations", 1)
+                .buildAndExpand(
+                        Map.of(
+                                "flowRef", "BBEX3",
+                                "key", "D..EUR.BB.AC.000"
+                        )
+                )
+                .toUriString();
+
+//        HttpGateway client = new RestTemplateGateway(restTemplate);
+        RestTemplate restTemplate = new RestTemplate();
+
+//        AppRequest request = AppRequest.builder()
+//                .method(AppRequest.HttpMethod.GET)
+//                .url(url)
+//                .build();
+
+        log.info("Getting currencies from {}", getProviderName());
+
+        try {
+//            currencyList = client.send(request, BundesbankDataCurrencyListDto.class).getBody();
+            restTemplate.execute(url, HttpMethod.GET, null, response -> {
+                InputStream stream = response.getBody();
+
+                CsvMapper csvMapper = new CsvMapper();
+                csvMapper.enable(CsvParser.Feature.SKIP_EMPTY_LINES);
+
+                CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+                MappingIterator<HashMap<String, String>> iterator = csvMapper.readerFor(Object.class)
+                        .with(schema)
+                        .readValues(stream);
+
+                while (iterator.hasNext()) {
+                    HashMap<String, String> currencyMap = iterator.next();
+                    currencyList.add(currencyMap.get("BBK_STD_CURRENCY"));
+                }
+
+                return currencyList;
+            });
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
                     restClientResponseException.getResponseBodyAsString(),
@@ -124,8 +189,8 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                         .readValues(stream);
 
                 while (iterator.hasNext()) {
-                    BundesbankExchangeDto user = iterator.next();
-                    exchangeList.add(user);
+                    BundesbankExchangeDto exchangeDto = iterator.next();
+                    exchangeList.add(exchangeDto);
                 }
 
                 return exchangeList;
