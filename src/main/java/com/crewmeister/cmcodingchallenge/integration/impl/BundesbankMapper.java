@@ -4,6 +4,7 @@ import com.crewmeister.cmcodingchallenge.exception.SerializationException;
 import com.crewmeister.cmcodingchallenge.integration.IntegrationMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
@@ -18,11 +19,12 @@ import java.math.BigDecimal;
 @RequiredArgsConstructor
 @Getter
 public class BundesbankMapper implements IntegrationMapper {
+    private final ObjectMapper jsonMapper;
     private final CsvMapper csvMapper;
 
     @Override
     public JsonNode parseToAvailableCurrencies(InputStream csvInputStream) {
-        ArrayNode root = csvMapper.createArrayNode();
+        ArrayNode root = jsonMapper.createArrayNode();
 
         try {
             CsvSchema schema = CsvSchema.emptySchema().withHeader();
@@ -43,7 +45,7 @@ public class BundesbankMapper implements IntegrationMapper {
 
     @Override
     public JsonNode parseToExchangeRate(InputStream csvInputStream) {
-        ObjectNode root = csvMapper.createObjectNode();
+        ObjectNode root = jsonMapper.createObjectNode();
 
         try {
             CsvSchema schema = CsvSchema.emptySchema().withHeader();
@@ -58,7 +60,7 @@ public class BundesbankMapper implements IntegrationMapper {
                 String date = node.get("TIME_PERIOD").asText();
 
                 if (!root.has(date)) {
-                    ObjectNode exchangeRateObject = csvMapper.createObjectNode();
+                    ObjectNode exchangeRateObject = jsonMapper.createObjectNode();
 
                     if (!node.get("OBS_STATUS").asText().equals("K")) {
 
