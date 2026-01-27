@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class BundesbankCurrencyDto extends CurrencyDto {
+public class BundesbankCodelistCurrencyDto extends CurrencyDto {
     @JsonProperty("id")
     @Override
     public String getCode() {

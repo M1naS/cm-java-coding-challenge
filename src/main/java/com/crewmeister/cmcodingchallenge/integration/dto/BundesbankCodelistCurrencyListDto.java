@@ -12,13 +12,13 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import java.io.IOException;
 import java.util.ArrayList;
 
-@JsonDeserialize(using = BundesbankCurrencyListDto.Deserializer.class)
-public class BundesbankCurrencyListDto extends ArrayList<BundesbankCurrencyDto> {
-    public static class Deserializer extends StdDeserializer<BundesbankCurrencyListDto> {
-        public Deserializer() { super(BundesbankCurrencyListDto.class); }
+@JsonDeserialize(using = BundesbankCodelistCurrencyListDto.Deserializer.class)
+public class BundesbankCodelistCurrencyListDto extends ArrayList<BundesbankCodelistCurrencyDto> {
+    public static class Deserializer extends StdDeserializer<BundesbankCodelistCurrencyListDto> {
+        public Deserializer() { super(BundesbankCodelistCurrencyListDto.class); }
         @Override
-        public BundesbankCurrencyListDto deserialize(JsonParser jsonParser, DeserializationContext context) {
-            BundesbankCurrencyListDto currencyList = new BundesbankCurrencyListDto();
+        public BundesbankCodelistCurrencyListDto deserialize(JsonParser jsonParser, DeserializationContext context) {
+            BundesbankCodelistCurrencyListDto currencyList = new BundesbankCodelistCurrencyListDto();
             ObjectMapper mapper = (ObjectMapper) jsonParser.getCodec();
 
             try {
@@ -32,7 +32,7 @@ public class BundesbankCurrencyListDto extends ArrayList<BundesbankCurrencyDto> 
                                 currencyNode.get("id").textValue().chars().anyMatch(Character::isDigit)
                         )) {
                             currencyList.add(
-                                    mapper.treeToValue(currencyNode, BundesbankCurrencyDto.class)
+                                    mapper.treeToValue(currencyNode, BundesbankCodelistCurrencyDto.class)
                             );
                         }
                     }

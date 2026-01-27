@@ -5,6 +5,6 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public class BundesbankCurrencyRequest implements CurrencyRequest {
+public class BundesbankCodelistCurrencyRequest implements CurrencyRequest {
     private final String lang;
 }

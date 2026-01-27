@@ -34,7 +34,7 @@ public class BundesbankExchangeRateController {
 
         CurrencyRequest currencyRequest = null;
         if (provider.equals("bundesbank")) {
-            currencyRequest = new BundesbankCurrencyRequest(lang);
+            currencyRequest = new BundesbankCodelistCurrencyRequest(lang);
         }
 
         AppResponse<List<? extends CurrencyDto>> currenciesAppResponse = new AppResponse<>(
@@ -58,7 +58,7 @@ public class BundesbankExchangeRateController {
 
         CurrencyRequest currencyRequest = null;
         if (provider.equals("bundesbank")) {
-            currencyRequest = new BundesbankCurrencyRequest(lang);
+            currencyRequest = new BundesbankCodelistCurrencyRequest(lang);
         }
 
         AppResponse<JsonNode> currenciesAppResponse = new AppResponse<>(

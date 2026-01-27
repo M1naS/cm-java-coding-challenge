@@ -40,15 +40,15 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<BundesbankCurrencyDto> getAllCurrencies(
+    public List<BundesbankCodelistCurrencyDto> getAllCurrencies(
             CurrencyRequest currencyRequest
     ) {
-        List<BundesbankCurrencyDto> currencyList;
+        List<BundesbankCodelistCurrencyDto> currencyList;
 
         String url = UriComponentsBuilder
                 .fromUriString(bundesbankProperties.getBaseUrl())
                 .path(bundesbankProperties.getSpecifiedCodelistPath())
-                .queryParam("lang", ((BundesbankCurrencyRequest) currencyRequest).getLang())
+                .queryParam("lang", ((BundesbankCodelistCurrencyRequest) currencyRequest).getLang())
                 .queryParam("format", bundesbankProperties.getSpecifiedCodelistFormat())
                 .buildAndExpand("CL_BBK_STD_CURRENCY")
                 .toUriString();
@@ -63,7 +63,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
         log.info("Getting currencies from {}", getProviderName());
 
         try {
-            currencyList = client.send(request, BundesbankCurrencyListDto.class).getBody();
+            currencyList = client.send(request, BundesbankCodelistCurrencyListDto.class).getBody();
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
                     restClientResponseException.getResponseBodyAsString(),
@@ -84,7 +84,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
         String url = UriComponentsBuilder
                 .fromUriString(bundesbankProperties.getBaseUrl())
                 .path(bundesbankProperties.getDataPath())
-                .queryParam("lang", ((BundesbankCurrencyRequest) currencyRequest).getLang())
+                .queryParam("lang", ((BundesbankCodelistCurrencyRequest) currencyRequest).getLang())
                 .queryParam("format", "sdmx_csv")
                 .queryParam("lastNObservations", 1)
                 .buildAndExpand(
