@@ -7,7 +7,7 @@ import java.util.List;
 public interface ExchangeRateProvider {
     String getProviderName();
 
-    List<? extends CurrencyDto> getCurrencies(CurrencyRequest request);
+    List<? extends CurrencyDto> getAllCurrencies(CurrencyRequest request);
 
     List<? extends ExchangeDto> getExchangeRates(ExchangeRequest request);
 }

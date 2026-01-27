@@ -29,7 +29,7 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<? extends CurrencyDto> getCurrencies(CurrencyRequest request) {
+    public List<? extends CurrencyDto> getAllCurrencies(CurrencyRequest request) {
         return List.of();
     }
 

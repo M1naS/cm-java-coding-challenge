@@ -19,8 +19,8 @@ public class BundesbankExchangeRateController {
 
     private final Map<String, ExchangeRateProvider> providers;
 
-    @GetMapping("/currencies")
-    public ResponseEntity<AppResponse<List<? extends CurrencyDto>>> getCurrencies(
+    @GetMapping("/all/currencies")
+    public ResponseEntity<AppResponse<List<? extends CurrencyDto>>> getAllCurrencies(
             @RequestParam(required = false, defaultValue = "de") String lang,
             @RequestParam(required = false, defaultValue = "bundesbank") String provider
     ) {
@@ -34,7 +34,7 @@ public class BundesbankExchangeRateController {
         }
 
         AppResponse<List<? extends CurrencyDto>> currenciesAppResponse = new AppResponse<>(
-                providers.get(provider).getCurrencies(currencyRequest),
+                providers.get(provider).getAllCurrencies(currencyRequest),
                 HttpStatus.OK.value()
         );
         return new ResponseEntity<>(

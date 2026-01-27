@@ -41,7 +41,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<BundesbankCurrencyDto> getCurrencies(
+    public List<BundesbankCurrencyDto> getAllCurrencies(
             CurrencyRequest currencyRequest
     ) {
         List<BundesbankCurrencyDto> currencyList;
