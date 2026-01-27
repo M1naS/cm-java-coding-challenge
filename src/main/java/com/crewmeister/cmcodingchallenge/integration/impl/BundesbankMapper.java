@@ -1,6 +1,7 @@
-package com.crewmeister.cmcodingchallenge.integration;
+package com.crewmeister.cmcodingchallenge.integration.impl;
 
 import com.crewmeister.cmcodingchallenge.exception.SerializationException;
+import com.crewmeister.cmcodingchallenge.integration.IntegrationMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -16,9 +17,10 @@ import java.math.BigDecimal;
 
 @RequiredArgsConstructor
 @Getter
-public class BundesbankMapper {
+public class BundesbankMapper implements IntegrationMapper {
     private final CsvMapper csvMapper;
 
+    @Override
     public JsonNode parseToAvailableCurrencies(InputStream csvInputStream) {
         ArrayNode root = csvMapper.createArrayNode();
 
@@ -39,6 +41,7 @@ public class BundesbankMapper {
         }
     }
 
+    @Override
     public JsonNode parseToExchangeRate(InputStream csvInputStream) {
         ObjectNode root = csvMapper.createObjectNode();
 

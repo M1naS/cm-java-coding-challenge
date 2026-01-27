@@ -1,6 +1,5 @@
 package com.crewmeister.cmcodingchallenge.integration.impl;
 
-import com.crewmeister.cmcodingchallenge.integration.BundesbankMapper;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.integration.dto.*;
 import com.fasterxml.jackson.databind.JsonNode;

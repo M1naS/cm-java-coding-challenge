@@ -1,6 +1,6 @@
 package com.crewmeister.cmcodingchallenge.config;
 
-import com.crewmeister.cmcodingchallenge.integration.BundesbankMapper;
+import com.crewmeister.cmcodingchallenge.integration.impl.BundesbankMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import org.springframework.context.annotation.Bean;
