@@ -42,7 +42,7 @@ public class BundesbankExchangeDto extends ExchangeDto {
                     LocalDate date = LocalDate.parse(node.get("TIME_PERIOD").asText());
                     exchange.setDate(date);
 
-                    if (!node.get("OBS_VALUE").asText().equals("K")) {
+                    if (!node.get("OBS_STATUS").asText().equals("K")) {
                         exchangeRates.add(
                                 new ExchangeRateDto(
                                         node.get("BBK_STD_CURRENCY").asText(),
