@@ -69,8 +69,7 @@ public class BundesbankExchangeRateController {
     }
 
     @GetMapping("/exchange-rates")
-    public ResponseEntity<AppResponse<List<? extends ExchangeDto>>> getExchangeRates(
-            @RequestParam(required = false, defaultValue = "de") String lang,
+    public ResponseEntity<AppResponse<JsonNode>> getExchangeRates(
             @RequestParam(required = false, defaultValue = "1") Integer lastNObservations,
             @RequestParam(required = false, defaultValue = "bundesbank") String provider
     ) {
@@ -80,12 +79,12 @@ public class BundesbankExchangeRateController {
 
         ExchangeRequest exchangeRequest = null;
         if (provider.equals("bundesbank")) {
-            exchangeRequest = new BundesbankExchangeRequest(lang, lastNObservations);
+            exchangeRequest = new BundesbankExchangeRequest(lastNObservations);
         } else if (provider.equals("local")) {
             exchangeRequest = new LocalExchangeRequest();
         }
 
-        AppResponse<List<? extends ExchangeDto>> exchangeAppResponse = new AppResponse<>(
+        AppResponse<JsonNode> exchangeAppResponse = new AppResponse<>(
                 providers.get(provider).getExchangeRates(exchangeRequest),
                 HttpStatus.OK.value()
         );

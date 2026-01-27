@@ -10,10 +10,6 @@ import com.crewmeister.cmcodingchallenge.network.HttpGateway;
 import com.crewmeister.cmcodingchallenge.network.AppRequest;
 import com.crewmeister.cmcodingchallenge.network.impl.RestTemplateGateway;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvParser;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -24,8 +20,6 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -131,15 +125,13 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<BundesbankExchangeDto> getExchangeRates(
+    public JsonNode getExchangeRates(
             ExchangeRequest exchangeRequest
     ) {
-        List<BundesbankExchangeDto> exchangeList = new ArrayList<>();
-
         String url = UriComponentsBuilder
                 .fromUriString(bundesbankProperties.getBaseUrl())
                 .path(bundesbankProperties.getDataPath())
-                .queryParam("lang", ((BundesbankExchangeRequest) exchangeRequest).getLang())
+                .queryParam("lang", "en")
                 .queryParam("format", bundesbankProperties.getDataFormat())
                 .queryParam("lastNObservations", ((BundesbankExchangeRequest) exchangeRequest).getLastNObservations())
                 .buildAndExpand(
@@ -161,26 +153,11 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
         log.info("Getting exchange rates from {}", getProviderName());
 
         try {
-            restTemplate.execute(url, HttpMethod.GET, null, response -> {
-                InputStream stream = response.getBody();
-
-                CsvMapper csvMapper = new CsvMapper();
-                csvMapper.enable(CsvParser.Feature.SKIP_EMPTY_LINES);
-
-                CsvSchema schema = CsvSchema.emptySchema().withHeader();
-
-                MappingIterator<BundesbankExchangeDto> iterator = csvMapper.readerFor(BundesbankExchangeDto.class)
-                        .with(schema)
-                        .readValues(stream);
-
-                while (iterator.hasNext()) {
-                    BundesbankExchangeDto exchangeDto = iterator.next();
-                    exchangeList.add(exchangeDto);
-                }
-
-                return exchangeList;
-            });
-
+            return restTemplate.execute(url,
+                    HttpMethod.GET,
+                    null,
+                    response -> bundesbankMapper.parseToExchangeRate(response.getBody())
+            );
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
                     restClientResponseException.getResponseBodyAsString(),
@@ -193,6 +170,5 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                     HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
-        return exchangeList;
     }
 }

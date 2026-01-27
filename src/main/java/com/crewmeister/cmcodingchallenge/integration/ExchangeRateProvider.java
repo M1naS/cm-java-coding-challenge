@@ -12,5 +12,5 @@ public interface ExchangeRateProvider {
 
     JsonNode getAvailableCurrencies(CurrencyRequest request);
 
-    List<? extends ExchangeDto> getExchangeRates(ExchangeRequest request);
+    JsonNode getExchangeRates(ExchangeRequest request);
 }
