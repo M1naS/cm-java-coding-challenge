@@ -255,7 +255,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
             );
 
             if (returnedRate.compareTo(BigDecimal.ZERO) == 0) {
-                throw new AppException("Exchange rate cannot be zero", HttpStatus.BAD_REQUEST);
+                throw new AppException("Exchange rate not found", HttpStatus.BAD_REQUEST);
             }
 
             bundesbankConvertedCurrency = BundesbankConvertedCurrencyDto.builder()
