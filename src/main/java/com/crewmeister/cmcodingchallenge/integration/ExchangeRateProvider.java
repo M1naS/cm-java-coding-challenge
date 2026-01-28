@@ -9,7 +9,7 @@ public interface ExchangeRateProvider {
 
     List<? extends CurrencyDto> getAllCurrencies(CurrencyRequest currencyRequest);
 
-    JsonNode getAvailableCurrencies(ExchangeRequest exchangeRequest);
+    List<String> getAvailableCurrencies(ExchangeRequest exchangeRequest);
 
     JsonNode getExchangeRates(ExchangeRequest exchangeRequest);
 

@@ -85,7 +85,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public JsonNode getAvailableCurrencies(ExchangeRequest exchangeRequest) {
+    public List<String> getAvailableCurrencies(ExchangeRequest exchangeRequest) {
         String url = UriComponentsBuilder
                 .fromUriString(bundesbankProperties.getBaseUrl())
                 .path(bundesbankProperties.getDataPath())

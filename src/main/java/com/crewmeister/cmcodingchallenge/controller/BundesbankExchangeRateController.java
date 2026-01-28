@@ -53,7 +53,7 @@ public class BundesbankExchangeRateController {
     }
 
     @GetMapping("/available/currencies")
-    public ResponseEntity<AppResponse<JsonNode>> getAvailableCurrencies(
+    public ResponseEntity<AppResponse<List<String>>> getAvailableCurrencies(
             @RequestParam(required = false, defaultValue = "bundesbank") String provider
     ) {
         if (providers.get(provider) == null) {
@@ -65,7 +65,7 @@ public class BundesbankExchangeRateController {
             exchangeRequest = BundesbankExchangeRequest.builder().build();
         }
 
-        AppResponse<JsonNode> currenciesAppResponse = new AppResponse<>(
+        AppResponse<List<String>> currenciesAppResponse = new AppResponse<>(
                 providers.get(provider).getAvailableCurrencies(exchangeRequest),
                 HttpStatus.OK.value()
         );

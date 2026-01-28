@@ -5,7 +5,6 @@ import com.crewmeister.cmcodingchallenge.integration.IntegrationMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -15,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Getter
@@ -23,8 +24,8 @@ public class BundesbankMapper implements IntegrationMapper {
     private final CsvMapper csvMapper;
 
     @Override
-    public JsonNode parseToAvailableCurrencies(InputStream csvInputStream) {
-        ArrayNode root = jsonMapper.createArrayNode();
+    public List<String> parseToAvailableCurrencies(InputStream csvInputStream) {
+        List<String> currencyList =  new ArrayList<>();
 
         try {
             CsvSchema schema = CsvSchema.emptySchema().withHeader();
@@ -34,10 +35,10 @@ public class BundesbankMapper implements IntegrationMapper {
                     .readValues(csvInputStream);
 
             while (nodeIterator.hasNext()) {
-                root.add(nodeIterator.next().get("BBK_STD_CURRENCY").asText());
+                currencyList.add(nodeIterator.next().get("BBK_STD_CURRENCY").asText());
             }
 
-            return root;
+            return currencyList;
         } catch (IOException ioException) {
             throw new SerializationException("Could not deserialize available currency list", ioException);
         }
