@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
 
-        log.error(appException.getMessage());
+        log.error(appException.getMessage(), appException);
 
         return new ResponseEntity<>(errorResponse, appException.getStatus());
     }
@@ -61,10 +61,10 @@ public class GlobalExceptionHandler {
                     .path(request.getRequestURI())
                     .build();
 
-            log.error(message);
+            log.error(message, bundesbankExchangeRateException);
 
         } catch (JsonProcessingException jsonProcessingException) {
-            log.error("Could not deserialize error response");
+            log.error("Could not deserialize error response", jsonProcessingException);
 
             return handleSerializationException(
                     new SerializationException(
@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
 
-        log.error(serializationException.getMessage());
+        log.error(serializationException.getMessage(), serializationException);
 
         return new ResponseEntity<>(errorResponse, serializationException.getStatus());
     }
@@ -113,7 +113,7 @@ public class GlobalExceptionHandler {
             errorResponse.setMessage(methodArgumentTypeMismatchException.getValue() + " is invalid, format should be (YYYY-MM-DD)");
         }
 
-        log.error(methodArgumentTypeMismatchException.getMessage());
+        log.error(methodArgumentTypeMismatchException.getMessage(),  methodArgumentTypeMismatchException);
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
@@ -131,7 +131,7 @@ public class GlobalExceptionHandler {
                 .path(request.getRequestURI())
                 .build();
 
-        log.error(missingServletRequestParameterException.getParameterName());
+        log.error(missingServletRequestParameterException.getParameterName(), missingServletRequestParameterException);
 
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
