@@ -1,6 +1,6 @@
 package com.crewmeister.cmcodingchallenge.integration;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankConvertedCurrencyDto;
 
 import java.util.List;
 
@@ -15,5 +15,5 @@ public interface ExchangeRateProvider {
 
     ExchangeDto getExchangeRatesByDate(ExchangeRequest exchangeRequest);
 
-    JsonNode getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest);
+    BundesbankConvertedCurrencyDto getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest);
 }

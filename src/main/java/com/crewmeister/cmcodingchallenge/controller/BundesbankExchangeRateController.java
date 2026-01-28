@@ -3,10 +3,10 @@ package com.crewmeister.cmcodingchallenge.controller;
 import com.crewmeister.cmcodingchallenge.exception.AppException;
 import com.crewmeister.cmcodingchallenge.integration.*;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyRequest;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankConvertedCurrencyDto;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeRequest;
 import com.crewmeister.cmcodingchallenge.integration.local.dto.LocalExchangeRequest;
 import com.crewmeister.cmcodingchallenge.network.AppResponse;
-import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -144,7 +144,7 @@ public class BundesbankExchangeRateController {
     }
 
     @GetMapping("/convert")
-    public ResponseEntity<AppResponse<JsonNode>> getConvertedForeignExchangeAmount(
+    public ResponseEntity<AppResponse<BundesbankConvertedCurrencyDto>> getConvertedForeignExchangeAmount(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam String currencyCode,
             @RequestParam BigDecimal amount,
@@ -165,7 +165,7 @@ public class BundesbankExchangeRateController {
             exchangeRequest = new LocalExchangeRequest();
         }
 
-        AppResponse<JsonNode> exchangeAppResponse = new AppResponse<>(
+        AppResponse<BundesbankConvertedCurrencyDto> exchangeAppResponse = new AppResponse<>(
                 providers.get(provider).getConvertedForeignExchangeAmount(exchangeRequest),
                 HttpStatus.OK.value()
         );

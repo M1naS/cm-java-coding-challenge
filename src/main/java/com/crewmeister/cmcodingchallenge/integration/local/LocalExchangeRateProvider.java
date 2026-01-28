@@ -5,8 +5,8 @@ import com.crewmeister.cmcodingchallenge.integration.CurrencyRequest;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankMapper;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankConvertedCurrencyDto;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeDto;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
@@ -73,7 +73,7 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public JsonNode getConvertedForeignExchangeAmount(ExchangeRequest request) {
+    public BundesbankConvertedCurrencyDto getConvertedForeignExchangeAmount(ExchangeRequest request) {
         return null;
     }
 }

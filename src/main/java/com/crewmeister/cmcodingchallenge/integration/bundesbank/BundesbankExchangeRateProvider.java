@@ -8,8 +8,6 @@ import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.*;
 import com.crewmeister.cmcodingchallenge.network.HttpGateway;
 import com.crewmeister.cmcodingchallenge.network.AppRequest;
 import com.crewmeister.cmcodingchallenge.network.impl.RestTemplateGateway;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
@@ -222,10 +220,10 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public JsonNode getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest) {
+    public BundesbankConvertedCurrencyDto getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest) {
         BundesbankExchangeRequest bundesbankExchangeRequest = (BundesbankExchangeRequest) exchangeRequest;
+        BundesbankConvertedCurrencyDto bundesbankConvertedCurrency;
 
-        ObjectNode result = bundesbankMapper.getJsonMapper().createObjectNode();
         ExchangeDto exchangeRatesByDate = getExchangeRatesByDate(
                 BundesbankExchangeRequest.builder()
                         .lastNObservations(1)
@@ -260,18 +258,19 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 throw new AppException("Exchange rate cannot be zero", HttpStatus.BAD_REQUEST);
             }
 
-            result.put("date", bundesbankExchangeRequest.getDate().toString());
-            result.put("rate", returnedRate);
-            result.put("currencyCode", bundesbankExchangeRequest.getCurrencyCode());
-            result.put("amount", bundesbankExchangeRequest.getAmount());
-            result.put(
-                    "converted",
-                    bundesbankExchangeRequest.getAmount().divide(returnedRate, 2, RoundingMode.HALF_UP)
-            );
+            bundesbankConvertedCurrency = BundesbankConvertedCurrencyDto.builder()
+                    .date(bundesbankExchangeRequest.getDate())
+                    .rate(returnedRate)
+                    .currencyCode(bundesbankExchangeRequest.getCurrencyCode())
+                    .amount(bundesbankExchangeRequest.getAmount())
+                    .converted(
+                            bundesbankExchangeRequest.getAmount().divide(returnedRate, 2, RoundingMode.HALF_UP)
+                    ).build();
+
         } catch (IllegalArgumentException illegalArgumentException) {
             throw new  AppException("No support for currency " + bundesbankExchangeRequest.getCurrencyCode(), HttpStatus.BAD_REQUEST);
         }
 
-        return result;
+        return bundesbankConvertedCurrency;
     }
 }
