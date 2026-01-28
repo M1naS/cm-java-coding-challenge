@@ -5,5 +5,6 @@ import java.util.List;
 
 public interface IntegrationMapper {
     List<String> parseToAvailableCurrencies(InputStream csvInputStream);
-    List<? extends ExchangeDto> parseToExchangeRate(InputStream csvInputStream);
+    ExchangeDto parseToExchangeRate(InputStream csvInputStream);
+    List<? extends ExchangeDto> parseToExchangeRateList(InputStream csvInputStream);
 }

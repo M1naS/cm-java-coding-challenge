@@ -4,6 +4,7 @@ import com.crewmeister.cmcodingchallenge.config.BundesbankProperties;
 import com.crewmeister.cmcodingchallenge.exception.AppException;
 import com.crewmeister.cmcodingchallenge.exception.BundesbankExchangeRateException;
 import com.crewmeister.cmcodingchallenge.integration.CurrencyRequest;
+import com.crewmeister.cmcodingchallenge.integration.ExchangeDto;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.*;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
@@ -129,7 +130,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<BundesbankExchangeDto> getExchangeRates(
+    public List<? extends ExchangeDto> getExchangeRates(
             ExchangeRequest exchangeRequest
     ) {
         String url = UriComponentsBuilder
@@ -160,7 +161,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
             return restTemplate.execute(url,
                     HttpMethod.GET,
                     null,
-                    response -> bundesbankMapper.parseToExchangeRate(response.getBody())
+                    response -> bundesbankMapper.parseToExchangeRateList(response.getBody())
             );
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
@@ -177,7 +178,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public JsonNode getExchangeRatesByDate(ExchangeRequest exchangeRequest) {
+    public ExchangeDto getExchangeRatesByDate(ExchangeRequest exchangeRequest) {
         String url = UriComponentsBuilder
                 .fromUriString(bundesbankProperties.getBaseUrl())
                 .path(bundesbankProperties.getDataPath())
@@ -207,10 +208,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
             return restTemplate.execute(url,
                     HttpMethod.GET,
                     null,
-                    response -> {
-                        return null;
-//                        bundesbankMapper.parseToExchangeRate(response.getBody()).get(((BundesbankExchangeRequest) exchangeRequest).getDate().toString())
-                    }
+                    response -> bundesbankMapper.parseToExchangeRate(response.getBody())
             );
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
@@ -231,7 +229,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
         BundesbankExchangeRequest bundesbankExchangeRequest = (BundesbankExchangeRequest) exchangeRequest;
 
         ObjectNode result = bundesbankMapper.getJsonMapper().createObjectNode();
-        JsonNode exchangeRatesByDate = getExchangeRatesByDate(
+        ExchangeDto exchangeRatesByDate = getExchangeRatesByDate(
                 BundesbankExchangeRequest.builder()
                         .lastNObservations(1)
                         .date(bundesbankExchangeRequest.getDate())
@@ -249,7 +247,8 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
             throw new AppException("Could not get exchange rate", HttpStatus.INTERNAL_SERVER_ERROR);
 
         try {
-            BigDecimal rate = new BigDecimal(exchangeRatesByDate.required(bundesbankExchangeRequest.getCurrencyCode()).asText());
+            BigDecimal rate = new BigDecimal(0);
+//            new BigDecimal(exchangeRatesByDate.required(bundesbankExchangeRequest.getCurrencyCode()).asText());
 
             if (rate.compareTo(BigDecimal.ZERO) == 0) {
                 throw new AppException("Exchange rate cannot be zero", HttpStatus.BAD_REQUEST);

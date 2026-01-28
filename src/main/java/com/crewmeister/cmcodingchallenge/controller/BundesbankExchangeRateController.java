@@ -107,7 +107,7 @@ public class BundesbankExchangeRateController {
     }
 
     @GetMapping(path = "/exchange-rates",  params = "date")
-    public ResponseEntity<AppResponse<JsonNode>> getExchangeRatesByDate(
+    public ResponseEntity<AppResponse<ExchangeDto>> getExchangeRatesByDate(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate date,
@@ -127,7 +127,7 @@ public class BundesbankExchangeRateController {
             exchangeRequest = new LocalExchangeRequest();
         }
 
-        AppResponse<JsonNode> exchangeAppResponse;
+        AppResponse<ExchangeDto> exchangeAppResponse;
 
         exchangeAppResponse = new AppResponse<>(
                 providers.get(provider).getExchangeRatesByDate(exchangeRequest),

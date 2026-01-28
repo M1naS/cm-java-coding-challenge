@@ -48,7 +48,53 @@ public class BundesbankMapper implements IntegrationMapper {
     }
 
     @Override
-    public List<BundesbankExchangeDto> parseToExchangeRate(InputStream csvInputStream) {
+    public BundesbankExchangeDto parseToExchangeRate(InputStream csvInputStream) {
+        try {
+            CsvSchema schema = CsvSchema.emptySchema().withHeader();
+
+            MappingIterator<JsonNode> nodeIterator = csvMapper.readerFor(JsonNode.class)
+                    .with(schema)
+                    .readValues(csvInputStream);
+
+            BundesbankExchangeDto bundesbankExchange = new BundesbankExchangeDto();
+            while (nodeIterator.hasNext()) {
+                List<ExchangeRateDto> exchangeRates = new ArrayList<>();
+
+                JsonNode node = nodeIterator.next();
+
+                String date = node.get("TIME_PERIOD").asText();
+
+                if (bundesbankExchange.getRates() == null || bundesbankExchange.getRates().isEmpty()) {
+                    if (!node.get("OBS_STATUS").asText().equals("K")) {
+                        exchangeRates.add(
+                                new ExchangeRateDto(
+                                        node.get("BBK_STD_CURRENCY").asText(),
+                                        new BigDecimal(node.get("OBS_VALUE").asText())
+                                )
+                        );
+                    }
+
+                    bundesbankExchange.setDate(LocalDate.parse(date));
+                    bundesbankExchange.setRates(exchangeRates);
+                } else {
+                    if (!node.get("OBS_STATUS").asText().equals("K")) {
+                        bundesbankExchange.getRates().add(
+                                new ExchangeRateDto(
+                                        node.get("BBK_STD_CURRENCY").asText(),
+                                        new BigDecimal(node.get("OBS_VALUE").asText())
+                                )
+                        );
+                    }
+                }
+            }
+            return bundesbankExchange;
+        } catch (IOException ioException) {
+            throw new SerializationException("Could not deserialize exchange rate list", ioException);
+        }
+    }
+
+    @Override
+    public List<BundesbankExchangeDto> parseToExchangeRateList(InputStream csvInputStream) {
         List<BundesbankExchangeDto> bundesbankExchangeList = new ArrayList<>();
 
         try {

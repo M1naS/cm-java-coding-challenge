@@ -68,7 +68,7 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public JsonNode getExchangeRatesByDate(ExchangeRequest exchangeRequest) {
+    public BundesbankExchangeDto getExchangeRatesByDate(ExchangeRequest exchangeRequest) {
         return null;
     }
 

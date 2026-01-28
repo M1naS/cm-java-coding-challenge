@@ -13,7 +13,7 @@ public interface ExchangeRateProvider {
 
     List<? extends ExchangeDto> getExchangeRates(ExchangeRequest exchangeRequest);
 
-    JsonNode getExchangeRatesByDate(ExchangeRequest exchangeRequest);
+    ExchangeDto getExchangeRatesByDate(ExchangeRequest exchangeRequest);
 
     JsonNode getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest);
 }
