@@ -1,10 +1,7 @@
 package com.crewmeister.cmcodingchallenge.controller;
 
 import com.crewmeister.cmcodingchallenge.exception.AppException;
-import com.crewmeister.cmcodingchallenge.integration.CurrencyDto;
-import com.crewmeister.cmcodingchallenge.integration.CurrencyRequest;
-import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
-import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
+import com.crewmeister.cmcodingchallenge.integration.*;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyRequest;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeRequest;
 import com.crewmeister.cmcodingchallenge.integration.local.dto.LocalExchangeRequest;
@@ -76,7 +73,7 @@ public class BundesbankExchangeRateController {
     }
 
     @GetMapping("/exchange-rates")
-    public ResponseEntity<AppResponse<JsonNode>> getExchangeRates(
+    public ResponseEntity<AppResponse<List<? extends ExchangeDto>>> getExchangeRates(
             @RequestParam(required = false, defaultValue = "1") Integer lastNObservations,
             @RequestParam(required = false, defaultValue = "bundesbank") String provider
     ) {
@@ -93,7 +90,7 @@ public class BundesbankExchangeRateController {
             exchangeRequest = new LocalExchangeRequest();
         }
 
-        AppResponse<JsonNode> exchangeAppResponse;
+        AppResponse<List<? extends ExchangeDto>> exchangeAppResponse;
 
         exchangeAppResponse = new AppResponse<>(
                 providers.get(provider).getExchangeRates(exchangeRequest),

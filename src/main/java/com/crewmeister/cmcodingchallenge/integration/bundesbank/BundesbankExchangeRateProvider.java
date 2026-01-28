@@ -5,10 +5,7 @@ import com.crewmeister.cmcodingchallenge.exception.AppException;
 import com.crewmeister.cmcodingchallenge.exception.BundesbankExchangeRateException;
 import com.crewmeister.cmcodingchallenge.integration.CurrencyRequest;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyDto;
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyListDto;
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyRequest;
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeRequest;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.*;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.network.HttpGateway;
 import com.crewmeister.cmcodingchallenge.network.AppRequest;
@@ -132,7 +129,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public JsonNode getExchangeRates(
+    public List<BundesbankExchangeDto> getExchangeRates(
             ExchangeRequest exchangeRequest
     ) {
         String url = UriComponentsBuilder
@@ -210,7 +207,10 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
             return restTemplate.execute(url,
                     HttpMethod.GET,
                     null,
-                    response -> bundesbankMapper.parseToExchangeRate(response.getBody()).get(((BundesbankExchangeRequest) exchangeRequest).getDate().toString())
+                    response -> {
+                        return null;
+//                        bundesbankMapper.parseToExchangeRate(response.getBody()).get(((BundesbankExchangeRequest) exchangeRequest).getDate().toString())
+                    }
             );
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(

@@ -1,11 +1,12 @@
 package com.crewmeister.cmcodingchallenge.integration.bundesbank;
 
 import com.crewmeister.cmcodingchallenge.exception.SerializationException;
+import com.crewmeister.cmcodingchallenge.integration.ExchangeRateDto;
 import com.crewmeister.cmcodingchallenge.integration.IntegrationMapper;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.Getter;
@@ -14,7 +15,9 @@ import lombok.RequiredArgsConstructor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -25,7 +28,7 @@ public class BundesbankMapper implements IntegrationMapper {
 
     @Override
     public List<String> parseToAvailableCurrencies(InputStream csvInputStream) {
-        List<String> currencyList =  new ArrayList<>();
+        List<String> currencyList = new ArrayList<>();
 
         try {
             CsvSchema schema = CsvSchema.emptySchema().withHeader();
@@ -45,8 +48,8 @@ public class BundesbankMapper implements IntegrationMapper {
     }
 
     @Override
-    public JsonNode parseToExchangeRate(InputStream csvInputStream) {
-        ObjectNode root = jsonMapper.createObjectNode();
+    public List<BundesbankExchangeDto> parseToExchangeRate(InputStream csvInputStream) {
+        List<BundesbankExchangeDto> bundesbankExchangeList = new ArrayList<>();
 
         try {
             CsvSchema schema = CsvSchema.emptySchema().withHeader();
@@ -56,37 +59,49 @@ public class BundesbankMapper implements IntegrationMapper {
                     .readValues(csvInputStream);
 
             while (nodeIterator.hasNext()) {
+                BundesbankExchangeDto bundesbankExchange = new BundesbankExchangeDto();
+                List<ExchangeRateDto> exchangeRates = new ArrayList<>();
+
                 JsonNode node = nodeIterator.next();
 
                 String date = node.get("TIME_PERIOD").asText();
 
-                if (!root.has(date)) {
-                    ObjectNode exchangeRateObject = jsonMapper.createObjectNode();
+                List<ExchangeRateDto> dateRates = bundesbankExchangeList.stream()
+                        .filter(exchange -> exchange
+                                .getDate()
+                                .equals(LocalDate.parse(date))
+                        )
+                        .findFirst().map(BundesbankExchangeDto::getRates)
+                        .orElse(Collections.emptyList());
 
+                if (dateRates.isEmpty()) {
                     if (!node.get("OBS_STATUS").asText().equals("K")) {
-
-                        exchangeRateObject.put(
-                                node.get("BBK_STD_CURRENCY").asText(),
-                                new BigDecimal(node.get("OBS_VALUE").asText())
+                        exchangeRates.add(
+                                new ExchangeRateDto(
+                                        node.get("BBK_STD_CURRENCY").asText(),
+                                        new BigDecimal(node.get("OBS_VALUE").asText())
+                                )
                         );
                     }
 
-                    root.set(date, exchangeRateObject);
+                    bundesbankExchange.setDate(LocalDate.parse(date));
+                    bundesbankExchange.setRates(exchangeRates);
+                    bundesbankExchangeList.add(bundesbankExchange);
                 } else {
-                    ObjectNode dateObject = (ObjectNode) root.get(date);
-
                     if (!node.get("OBS_STATUS").asText().equals("K")) {
-                        dateObject.put(
-                                node.get("BBK_STD_CURRENCY").asText(),
-                                new BigDecimal(node.get("OBS_VALUE").asText())
+                        dateRates.add(
+                                new ExchangeRateDto(
+                                        node.get("BBK_STD_CURRENCY").asText(),
+                                        new BigDecimal(node.get("OBS_VALUE").asText())
+                                )
                         );
                     }
                 }
-
-                if (root.get(date).isEmpty()) root.remove(date);
+                if (exchangeRates.isEmpty()) {
+                    bundesbankExchangeList.remove(new BundesbankExchangeDto(LocalDate.parse(date), exchangeRates));
+                }
             }
-
-            return root;
+            return bundesbankExchangeList;
         } catch (IOException ioException) {
             throw new SerializationException("Could not deserialize exchange rate list", ioException);
         }

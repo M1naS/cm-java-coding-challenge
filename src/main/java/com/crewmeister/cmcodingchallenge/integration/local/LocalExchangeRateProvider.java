@@ -5,6 +5,7 @@ import com.crewmeister.cmcodingchallenge.integration.CurrencyRequest;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankMapper;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
@@ -15,6 +16,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -31,16 +33,16 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
 
     @Override
     public List<? extends CurrencyDto> getAllCurrencies(CurrencyRequest request) {
-        return List.of();
+        return Collections.emptyList();
     }
 
     @Override
     public List<String> getAvailableCurrencies(ExchangeRequest exchangeRequest) {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
-    public JsonNode getExchangeRates(ExchangeRequest request) {
+    public List<BundesbankExchangeDto> getExchangeRates(ExchangeRequest request) {
 
         Resource resource = resourceLoader.getResource("classpath:payloads/sdmx_csv-dataonly-1.csv");
 
@@ -61,7 +63,8 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
 //            throw new SerializationException("Could not deserialize exchange rates list", ioException);
 //        }
 
-        return bundesbankMapper.getJsonMapper().createObjectNode();
+//        return bundesbankMapper.getJsonMapper().createObjectNode();
+        return Collections.emptyList();
     }
 
     @Override
