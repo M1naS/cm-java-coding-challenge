@@ -31,7 +31,7 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<? extends CurrencyDto> getAllCurrencies(CurrencyRequest request) {
+    public List<? extends CurrencyDto> getAllCurrencies(CurrencyRequest currencyRequest) {
         return Collections.emptyList();
     }
 
@@ -50,7 +50,7 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<BundesbankExchangeDto> getExchangeRates(ExchangeRequest request) {
+    public List<? extends ExchangeDto> getExchangeRates(ExchangeRequest exchangeRequest) {
         List<BundesbankExchangeDto> bundesbankExchangeList;
 
         Resource resource = resourceLoader.getResource("classpath:payloads/exchange-data.csv");
