@@ -1,5 +1,6 @@
 package com.crewmeister.cmcodingchallenge.integration.local;
 
+import com.crewmeister.cmcodingchallenge.exception.SerializationException;
 import com.crewmeister.cmcodingchallenge.integration.CurrencyDto;
 import com.crewmeister.cmcodingchallenge.integration.CurrencyRequest;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
@@ -7,15 +8,13 @@ import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankMapper;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankConvertedCurrencyDto;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeDto;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvParser;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,28 +42,16 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
 
     @Override
     public List<BundesbankExchangeDto> getExchangeRates(ExchangeRequest request) {
+        List<BundesbankExchangeDto> bundesbankExchangeList;
 
         Resource resource = resourceLoader.getResource("classpath:payloads/sdmx_csv-dataonly-1.csv");
+        try {
+            bundesbankExchangeList = bundesbankMapper.parseToExchangeRateList(resource.getInputStream());
+        } catch (IOException ioException) {
+            throw new SerializationException("Could not deserialize exchange rates list", ioException);
+        }
 
-        CsvMapper csvMapper = new CsvMapper();
-        csvMapper.enable(CsvParser.Feature.SKIP_EMPTY_LINES);
-
-        CsvSchema schema = CsvSchema.emptySchema().withHeader();
-
-//        try (
-//                MappingIterator<BundesbankExchangeDto> iterator = csvMapper.readerFor(BundesbankExchangeDto.class)
-//                                .with(schema)
-//                                .readValues(resource.getFile())
-//        ) {
-//            while (iterator.hasNext()) {
-//                    response.add(iterator.next());
-//            }
-//        } catch (IOException ioException) {
-//            throw new SerializationException("Could not deserialize exchange rates list", ioException);
-//        }
-
-//        return bundesbankMapper.getJsonMapper().createObjectNode();
-        return Collections.emptyList();
+        return bundesbankExchangeList;
     }
 
     @Override

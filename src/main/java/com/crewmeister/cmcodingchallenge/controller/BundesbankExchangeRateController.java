@@ -81,13 +81,13 @@ public class BundesbankExchangeRateController {
             throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
         }
 
-        ExchangeRequest exchangeRequest = null;
-        if (provider.equals("bundesbank")) {
+        ExchangeRequest exchangeRequest;
+         if (provider.equals("local")) {
+            exchangeRequest = new LocalExchangeRequest();
+        } else {
             exchangeRequest = BundesbankExchangeRequest.builder()
                     .lastNObservations(lastNObservations)
                     .build();
-        } else if (provider.equals("local")) {
-            exchangeRequest = new LocalExchangeRequest();
         }
 
         AppResponse<List<? extends ExchangeDto>> exchangeAppResponse;
