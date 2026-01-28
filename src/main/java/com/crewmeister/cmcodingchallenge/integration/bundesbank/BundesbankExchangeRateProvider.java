@@ -3,11 +3,8 @@ package com.crewmeister.cmcodingchallenge.integration.bundesbank;
 import com.crewmeister.cmcodingchallenge.config.BundesbankProperties;
 import com.crewmeister.cmcodingchallenge.exception.AppException;
 import com.crewmeister.cmcodingchallenge.exception.BundesbankExchangeRateException;
-import com.crewmeister.cmcodingchallenge.integration.CurrencyRequest;
-import com.crewmeister.cmcodingchallenge.integration.ExchangeDto;
-import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
+import com.crewmeister.cmcodingchallenge.integration.*;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.*;
-import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.network.HttpGateway;
 import com.crewmeister.cmcodingchallenge.network.AppRequest;
 import com.crewmeister.cmcodingchallenge.network.impl.RestTemplateGateway;
@@ -247,20 +244,29 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
             throw new AppException("Could not get exchange rate", HttpStatus.INTERNAL_SERVER_ERROR);
 
         try {
-            BigDecimal rate = new BigDecimal(0);
-//            new BigDecimal(exchangeRatesByDate.required(bundesbankExchangeRequest.getCurrencyCode()).asText());
+            BigDecimal returnedRate = new BigDecimal(
+                    String.valueOf(
+                            exchangeRatesByDate.getRates().stream()
+                                    .filter(
+                                            rate -> rate.getCode()
+                                            .equals(bundesbankExchangeRequest.getCurrencyCode())
+                                    )
+                                    .findFirst().map(ExchangeRateDto::getRate)
+                                    .orElse(new BigDecimal(0))
+                    )
+            );
 
-            if (rate.compareTo(BigDecimal.ZERO) == 0) {
+            if (returnedRate.compareTo(BigDecimal.ZERO) == 0) {
                 throw new AppException("Exchange rate cannot be zero", HttpStatus.BAD_REQUEST);
             }
 
             result.put("date", bundesbankExchangeRequest.getDate().toString());
-            result.put("rate", rate);
+            result.put("rate", returnedRate);
             result.put("currencyCode", bundesbankExchangeRequest.getCurrencyCode());
             result.put("amount", bundesbankExchangeRequest.getAmount());
             result.put(
                     "converted",
-                    bundesbankExchangeRequest.getAmount().divide(rate, 2, RoundingMode.HALF_UP)
+                    bundesbankExchangeRequest.getAmount().divide(returnedRate, 2, RoundingMode.HALF_UP)
             );
         } catch (IllegalArgumentException illegalArgumentException) {
             throw new  AppException("No support for currency " + bundesbankExchangeRequest.getCurrencyCode(), HttpStatus.BAD_REQUEST);
