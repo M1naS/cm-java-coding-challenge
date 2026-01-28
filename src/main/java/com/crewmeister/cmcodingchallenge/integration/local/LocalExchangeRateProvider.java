@@ -35,7 +35,7 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public JsonNode getAvailableCurrencies(CurrencyRequest request) {
+    public JsonNode getAvailableCurrencies(ExchangeRequest exchangeRequest) {
         return null;
     }
 

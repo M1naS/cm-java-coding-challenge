@@ -7,13 +7,13 @@ import java.util.List;
 public interface ExchangeRateProvider {
     String getProviderName();
 
-    List<? extends CurrencyDto> getAllCurrencies(CurrencyRequest request);
+    List<? extends CurrencyDto> getAllCurrencies(CurrencyRequest currencyRequest);
 
-    JsonNode getAvailableCurrencies(CurrencyRequest request);
+    JsonNode getAvailableCurrencies(ExchangeRequest exchangeRequest);
 
-    JsonNode getExchangeRates(ExchangeRequest request);
+    JsonNode getExchangeRates(ExchangeRequest exchangeRequest);
 
-    JsonNode getExchangeRatesByDate(ExchangeRequest request);
+    JsonNode getExchangeRatesByDate(ExchangeRequest exchangeRequest);
 
-    JsonNode getConvertedForeignExchangeAmount(ExchangeRequest request);
+    JsonNode getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest);
 }

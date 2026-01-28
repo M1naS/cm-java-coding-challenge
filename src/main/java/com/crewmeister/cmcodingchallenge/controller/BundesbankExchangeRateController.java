@@ -54,20 +54,19 @@ public class BundesbankExchangeRateController {
 
     @GetMapping("/available/currencies")
     public ResponseEntity<AppResponse<JsonNode>> getAvailableCurrencies(
-            @RequestParam(required = false, defaultValue = "de") String lang,
             @RequestParam(required = false, defaultValue = "bundesbank") String provider
     ) {
         if (providers.get(provider) == null) {
             throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
         }
 
-        CurrencyRequest currencyRequest = null;
+        ExchangeRequest exchangeRequest = null;
         if (provider.equals("bundesbank")) {
-            currencyRequest = new BundesbankCodelistCurrencyRequest(lang);
+            exchangeRequest = BundesbankExchangeRequest.builder().build();
         }
 
         AppResponse<JsonNode> currenciesAppResponse = new AppResponse<>(
-                providers.get(provider).getAvailableCurrencies(currencyRequest),
+                providers.get(provider).getAvailableCurrencies(exchangeRequest),
                 HttpStatus.OK.value()
         );
         return new ResponseEntity<>(

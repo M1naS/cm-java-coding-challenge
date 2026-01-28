@@ -85,11 +85,11 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public JsonNode getAvailableCurrencies(CurrencyRequest currencyRequest) {
+    public JsonNode getAvailableCurrencies(ExchangeRequest exchangeRequest) {
         String url = UriComponentsBuilder
                 .fromUriString(bundesbankProperties.getBaseUrl())
                 .path(bundesbankProperties.getDataPath())
-                .queryParam("lang", ((BundesbankCodelistCurrencyRequest) currencyRequest).getLang())
+                .queryParam("lang", "en")
                 .queryParam("format", "sdmx_csv")
                 .queryParam("lastNObservations", 1)
                 .buildAndExpand(
