@@ -9,6 +9,7 @@ import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankEx
 import com.crewmeister.cmcodingchallenge.integration.local.dto.LocalExchangeRequest;
 import com.crewmeister.cmcodingchallenge.network.AppResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,7 +67,7 @@ public class BundesbankExchangeRateController {
                 HttpStatus.OK
         );
     }
-
+    @Cacheable("bundesbank-rates")
     @GetMapping("/exchange-rates")
     public ResponseEntity<AppResponse<List<? extends ExchangeDto>>> getExchangeRates(
             @RequestParam(required = false, defaultValue = "1") Integer lastNObservations,
