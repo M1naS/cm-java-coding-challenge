@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -28,11 +27,6 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     @Override
     public String getProviderName() {
         return "Local Provider";
-    }
-
-    @Override
-    public List<? extends CurrencyDto> getAllCurrencies(CurrencyRequest currencyRequest) {
-        return Collections.emptyList();
     }
 
     @Override

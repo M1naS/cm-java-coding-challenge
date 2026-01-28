@@ -2,6 +2,7 @@ package com.crewmeister.cmcodingchallenge.controller;
 
 import com.crewmeister.cmcodingchallenge.exception.AppException;
 import com.crewmeister.cmcodingchallenge.integration.*;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyRequest;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankConvertedCurrencyDto;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeRequest;
@@ -27,20 +28,12 @@ public class BundesbankExchangeRateController {
 
     @GetMapping("/all/currencies")
     public ResponseEntity<AppResponse<List<? extends CurrencyDto>>> getAllCurrencies(
-            @RequestParam(required = false, defaultValue = "de") String lang,
-            @RequestParam(required = false, defaultValue = "bundesbank") String provider
+            @RequestParam(required = false, defaultValue = "de") String lang
     ) {
-        if (providers.get(provider) == null) {
-            throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
-        }
-
-        CurrencyRequest currencyRequest = null;
-        if (provider.equals("bundesbank")) {
-            currencyRequest = new BundesbankCodelistCurrencyRequest(lang);
-        }
+        BundesbankCodelistCurrencyRequest bundesbankCodelistCurrencyRequest = new BundesbankCodelistCurrencyRequest(lang);
 
         AppResponse<List<? extends CurrencyDto>> currenciesAppResponse = new AppResponse<>(
-                providers.get(provider).getAllCurrencies(currencyRequest),
+                ((BundesbankExchangeRateProvider) providers.get("bundesbank")).getAllCurrencies(bundesbankCodelistCurrencyRequest),
                 HttpStatus.OK.value()
         );
         return new ResponseEntity<>(

@@ -37,8 +37,8 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
         return "Bundesbank Daily Exchange Rates";
     }
 
-    @Override
-    public List<BundesbankCodelistCurrencyDto> getAllCurrencies(
+
+    public List<? extends CurrencyDto> getAllCurrencies(
             CurrencyRequest currencyRequest
     ) {
         List<BundesbankCodelistCurrencyDto> currencyList;
@@ -133,7 +133,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 .path(bundesbankProperties.getDataPath())
                 .queryParam("lang", "en")
                 .queryParam("format", bundesbankProperties.getDataFormat())
-                .queryParam("lastNObservations", ((BundesbankExchangeRequest) exchangeRequest).getLastNObservations())
+                .queryParam("lastNObservations", exchangeRequest.getLastNObservations())
                 .buildAndExpand(
                         Map.of(
                                 "flowRef", "BBEX3",
@@ -180,7 +180,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 .queryParam("lang", "en")
                 .queryParam("format", bundesbankProperties.getDataFormat())
                 .queryParam("lastNObservations", 1)
-                .queryParam("endPeriod", ((BundesbankExchangeRequest) exchangeRequest).getDate().toString())
+                .queryParam("endPeriod", exchangeRequest.getDate().toString())
                 .buildAndExpand(
                         Map.of(
                                 "flowRef", "BBEX3",
@@ -197,7 +197,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
 //                .url(url)
 //                .build();
 
-        log.info("Getting exchange rates of {} from {}", ((BundesbankExchangeRequest) exchangeRequest).getDate().toString(), getProviderName());
+        log.info("Getting exchange rates of {} from {}", exchangeRequest.getDate().toString(), getProviderName());
 
         try {
             return restTemplate.execute(url,
