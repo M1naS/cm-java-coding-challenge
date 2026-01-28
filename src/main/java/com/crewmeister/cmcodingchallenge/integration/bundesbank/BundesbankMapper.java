@@ -1,4 +1,4 @@
-package com.crewmeister.cmcodingchallenge.integration.impl;
+package com.crewmeister.cmcodingchallenge.integration.bundesbank;
 
 import com.crewmeister.cmcodingchallenge.exception.SerializationException;
 import com.crewmeister.cmcodingchallenge.integration.IntegrationMapper;

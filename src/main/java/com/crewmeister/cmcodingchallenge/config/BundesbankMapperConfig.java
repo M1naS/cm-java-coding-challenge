@@ -1,6 +1,6 @@
 package com.crewmeister.cmcodingchallenge.config;
 
-import com.crewmeister.cmcodingchallenge.integration.impl.BundesbankMapper;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankMapper;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

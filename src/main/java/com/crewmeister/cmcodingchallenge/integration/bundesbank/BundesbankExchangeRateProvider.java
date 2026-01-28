@@ -1,9 +1,14 @@
-package com.crewmeister.cmcodingchallenge.integration.impl;
+package com.crewmeister.cmcodingchallenge.integration.bundesbank;
 
 import com.crewmeister.cmcodingchallenge.config.BundesbankProperties;
 import com.crewmeister.cmcodingchallenge.exception.AppException;
 import com.crewmeister.cmcodingchallenge.exception.BundesbankExchangeRateException;
-import com.crewmeister.cmcodingchallenge.integration.dto.*;
+import com.crewmeister.cmcodingchallenge.integration.CurrencyRequest;
+import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyDto;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyListDto;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyRequest;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeRequest;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
 import com.crewmeister.cmcodingchallenge.network.HttpGateway;
 import com.crewmeister.cmcodingchallenge.network.AppRequest;

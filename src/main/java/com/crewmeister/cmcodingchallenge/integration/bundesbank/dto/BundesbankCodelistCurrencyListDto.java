@@ -1,4 +1,4 @@
-package com.crewmeister.cmcodingchallenge.integration.dto;
+package com.crewmeister.cmcodingchallenge.integration.bundesbank.dto;
 
 
 import com.crewmeister.cmcodingchallenge.exception.SerializationException;

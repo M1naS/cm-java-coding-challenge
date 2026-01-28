@@ -1,5 +1,6 @@
-package com.crewmeister.cmcodingchallenge.integration.dto;
+package com.crewmeister.cmcodingchallenge.integration.bundesbank.dto;
 
+import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;

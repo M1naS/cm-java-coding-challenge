@@ -1,8 +1,13 @@
 package com.crewmeister.cmcodingchallenge.controller;
 
 import com.crewmeister.cmcodingchallenge.exception.AppException;
+import com.crewmeister.cmcodingchallenge.integration.CurrencyDto;
+import com.crewmeister.cmcodingchallenge.integration.CurrencyRequest;
+import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
-import com.crewmeister.cmcodingchallenge.integration.dto.*;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyRequest;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeRequest;
+import com.crewmeister.cmcodingchallenge.integration.local.dto.LocalExchangeRequest;
 import com.crewmeister.cmcodingchallenge.network.AppResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;

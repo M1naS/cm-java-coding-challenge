@@ -1,4 +1,4 @@
-package com.crewmeister.cmcodingchallenge.integration.dto;
+package com.crewmeister.cmcodingchallenge.integration;
 
 import lombok.Data;
 

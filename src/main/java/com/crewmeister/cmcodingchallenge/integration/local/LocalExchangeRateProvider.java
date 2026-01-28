@@ -1,7 +1,10 @@
-package com.crewmeister.cmcodingchallenge.integration.impl;
+package com.crewmeister.cmcodingchallenge.integration.local;
 
+import com.crewmeister.cmcodingchallenge.integration.CurrencyDto;
+import com.crewmeister.cmcodingchallenge.integration.CurrencyRequest;
+import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRateProvider;
-import com.crewmeister.cmcodingchallenge.integration.dto.*;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
