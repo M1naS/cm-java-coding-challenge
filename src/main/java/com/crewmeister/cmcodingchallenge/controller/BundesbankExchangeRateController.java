@@ -59,7 +59,7 @@ public class BundesbankExchangeRateController {
 
         ExchangeRequest exchangeRequest;
         if (provider.equals("local")) {
-            exchangeRequest = new LocalExchangeRequest();
+            exchangeRequest = LocalExchangeRequest.builder().build();
         } else {
             exchangeRequest = BundesbankExchangeRequest.builder().build();
         }
@@ -85,7 +85,7 @@ public class BundesbankExchangeRateController {
 
         ExchangeRequest exchangeRequest;
          if (provider.equals("local")) {
-            exchangeRequest = new LocalExchangeRequest();
+            exchangeRequest = LocalExchangeRequest.builder().build();
         } else {
             exchangeRequest = BundesbankExchangeRequest.builder()
                     .lastNObservations(lastNObservations)
@@ -122,7 +122,7 @@ public class BundesbankExchangeRateController {
 
         ExchangeRequest exchangeRequest;
         if (provider.equals("local")) {
-            exchangeRequest = new LocalExchangeRequest();
+            exchangeRequest = LocalExchangeRequest.builder().build();
         } else {
             exchangeRequest = BundesbankExchangeRequest.builder()
                     .date(date)
@@ -156,15 +156,19 @@ public class BundesbankExchangeRateController {
             throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
         }
 
-        ExchangeRequest exchangeRequest = null;
-        if (provider.equals("bundesbank")) {
+        ExchangeRequest exchangeRequest;
+        if (provider.equals("local")) {
+            exchangeRequest = LocalExchangeRequest.builder()
+                    .date(date)
+                    .currencyCode(currencyCode)
+                    .amount(amount)
+                    .build();
+        } else {
             exchangeRequest = BundesbankExchangeRequest.builder()
                     .date(date)
                     .currencyCode(currencyCode)
                     .amount(amount)
                     .build();
-        } else if (provider.equals("local")) {
-            exchangeRequest = new LocalExchangeRequest();
         }
 
         AppResponse<BundesbankConvertedCurrencyDto> exchangeAppResponse = new AppResponse<>(

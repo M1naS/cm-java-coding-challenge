@@ -1,10 +1,19 @@
 package com.crewmeister.cmcodingchallenge.integration.local.dto;
 
 import com.crewmeister.cmcodingchallenge.integration.ExchangeRequest;
+import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
 @Data
 @RequiredArgsConstructor
+@Builder
 public class LocalExchangeRequest implements ExchangeRequest {
+    private final Integer lastNObservations;
+    private final LocalDate date;
+    private final String currencyCode;
+    private final BigDecimal amount;
 }
