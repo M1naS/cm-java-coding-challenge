@@ -37,7 +37,16 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
 
     @Override
     public List<String> getAvailableCurrencies(ExchangeRequest exchangeRequest) {
-        return Collections.emptyList();
+        List<String> currencies;
+
+        Resource resource = resourceLoader.getResource("classpath:payloads/exchange-data.csv");
+        try {
+            currencies = bundesbankMapper.parseToAvailableCurrencies(resource.getInputStream());
+        } catch (IOException ioException) {
+            throw new SerializationException("Could not deserialize exchange rates list", ioException);
+        }
+
+        return currencies;
     }
 
     @Override
