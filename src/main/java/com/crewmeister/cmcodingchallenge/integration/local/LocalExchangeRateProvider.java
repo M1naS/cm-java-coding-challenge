@@ -65,7 +65,16 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
 
     @Override
     public BundesbankExchangeDto getExchangeRatesByDate(ExchangeRequest exchangeRequest) {
-        return null;
+        BundesbankExchangeDto bundesbankExchange;
+
+        Resource resource = resourceLoader.getResource("classpath:payloads/exchange-data.csv");
+        try {
+            bundesbankExchange = bundesbankMapper.parseToExchangeRate(resource.getInputStream());
+        } catch (IOException ioException) {
+            throw new SerializationException("Could not deserialize exchange rates list", ioException);
+        }
+
+        return bundesbankExchange;
     }
 
     @Override
