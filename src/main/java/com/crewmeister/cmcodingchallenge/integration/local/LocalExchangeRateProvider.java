@@ -44,7 +44,7 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     public List<BundesbankExchangeDto> getExchangeRates(ExchangeRequest request) {
         List<BundesbankExchangeDto> bundesbankExchangeList;
 
-        Resource resource = resourceLoader.getResource("classpath:payloads/sdmx_csv-dataonly-1.csv");
+        Resource resource = resourceLoader.getResource("classpath:payloads/exchange-data.csv");
         try {
             bundesbankExchangeList = bundesbankMapper.parseToExchangeRateList(resource.getInputStream());
         } catch (IOException ioException) {
