@@ -78,7 +78,39 @@ public class BundesbankExchangeRateController {
     @GetMapping("/exchange-rates")
     public ResponseEntity<AppResponse<JsonNode>> getExchangeRates(
             @RequestParam(required = false, defaultValue = "1") Integer lastNObservations,
+            @RequestParam(required = false, defaultValue = "bundesbank") String provider
+    ) {
+        if (providers.get(provider) == null) {
+            throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
+        }
 
+        ExchangeRequest exchangeRequest = null;
+        if (provider.equals("bundesbank")) {
+            exchangeRequest = BundesbankExchangeRequest.builder()
+                    .lastNObservations(lastNObservations)
+                    .build();
+        } else if (provider.equals("local")) {
+            exchangeRequest = new LocalExchangeRequest();
+        }
+
+        AppResponse<JsonNode> exchangeAppResponse;
+
+        exchangeAppResponse = new AppResponse<>(
+                providers.get(provider).getExchangeRates(exchangeRequest),
+                HttpStatus.OK.value()
+        );
+
+        if (exchangeAppResponse.getBody() != null) {
+            return new ResponseEntity<>(
+                    exchangeAppResponse,
+                    HttpStatus.OK
+            );
+        }
+        throw new AppException("Exchange rates not found", HttpStatus.NOT_FOUND);
+    }
+
+    @GetMapping(path = "/exchange-rates",  params = "date")
+    public ResponseEntity<AppResponse<JsonNode>> getExchangeRatesByDate(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate date,
@@ -92,7 +124,6 @@ public class BundesbankExchangeRateController {
         ExchangeRequest exchangeRequest = null;
         if (provider.equals("bundesbank")) {
             exchangeRequest = BundesbankExchangeRequest.builder()
-                    .lastNObservations(lastNObservations)
                     .date(date)
                     .build();
         } else if (provider.equals("local")) {
@@ -101,17 +132,10 @@ public class BundesbankExchangeRateController {
 
         AppResponse<JsonNode> exchangeAppResponse;
 
-        if (date == null) {
-            exchangeAppResponse = new AppResponse<>(
-                    providers.get(provider).getExchangeRates(exchangeRequest),
-                    HttpStatus.OK.value()
-            );
-        } else {
-            exchangeAppResponse = new AppResponse<>(
-                    providers.get(provider).getExchangeRatesByDate(exchangeRequest),
-                    HttpStatus.OK.value()
-            );
-        }
+        exchangeAppResponse = new AppResponse<>(
+                providers.get(provider).getExchangeRatesByDate(exchangeRequest),
+                HttpStatus.OK.value()
+        );
 
         if (exchangeAppResponse.getBody() != null) {
             return new ResponseEntity<>(

@@ -1,17 +1,17 @@
 meta {
-  name: getExchangeRates
+  name: getExchangeRatesByDate
   type: http
-  seq: 3
+  seq: 4
 }
 
 get {
-  url: {{baseUrl}}/api/v1/bundesbank/exchange-rates?lastNObservations=1
+  url: {{baseUrl}}/api/v1/bundesbank/exchange-rates?date=2026-01-27
   body: none
   auth: inherit
 }
 
 params:query {
-  lastNObservations: 1
+  date: 2026-01-27
   ~provider: 
 }
 
