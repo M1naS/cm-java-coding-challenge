@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,8 +18,17 @@ public class BundesbankCacheManager {
     private final BundesbankExchangeRateProvider bundesbankExchangeRateProvider;
     private final CacheManager cacheManager;
 
-    @CacheEvict(value = "bundesbank-rates", allEntries = true)
-    public void clearCache() {}
+    public void clearCache() {
+        log.info("Clearing cache..");
+
+        Cache cache = cacheManager.getCache("bundesbank-rates");
+        if (cache != null) {
+            cache.clear();
+            log.info("Cache Cleared!");
+        } else {
+            log.info("Could not clear cache");
+        }
+    }
 
     public void warmingCache() {
         log.info("Warming up the cache...");

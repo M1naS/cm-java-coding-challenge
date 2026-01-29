@@ -14,9 +14,7 @@ public class CacheScheduler {
 
     @Scheduled(cron = "0 30 16 * * MON-FRI", zone = "CET")
     public void refreshCache() {
-        log.info("Clearing cache..");
         bundesbankCacheManager.clearCache();
-        log.info("Cache Cleared!");
         bundesbankCacheManager.warmingCache();
     }
 }
