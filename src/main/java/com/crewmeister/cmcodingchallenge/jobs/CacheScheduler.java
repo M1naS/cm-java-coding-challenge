@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class CacheScheduler {
-    BundesbankCacheManager bundesbankCacheManager;
+    private final BundesbankCacheManager bundesbankCacheManager;
 
     @Scheduled(cron = "0 30 16 * * MON-FRI", zone = "CET")
     public void refreshCache() {
