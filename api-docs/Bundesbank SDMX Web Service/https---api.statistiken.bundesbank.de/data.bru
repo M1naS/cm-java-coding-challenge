@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/data/:flowRef/:key?lang=en&format=sdmx_csv&detail=dataonly&lastNObservations=1&endPeriod=2004-12-31
+  url: {{baseUrl}}/data/:flowRef/:key?lang=en&format=sdmx_csv&detail=dataonly&startPeriod=2026-01-01&endPeriod=2026-12-31
   body: none
   auth: inherit
 }
@@ -14,9 +14,9 @@ params:query {
   lang: en
   format: sdmx_csv
   detail: dataonly
-  lastNObservations: 1
-  endPeriod: 2004-12-31
-  ~startPeriod: 
+  startPeriod: 2026-01-01
+  endPeriod: 2026-12-31
+  ~lastNObservations: 1
   ~preparedAfter: 
   ~firstNObservations: 
   ~firstNVintages: 

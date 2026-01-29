@@ -1,6 +1,6 @@
 package com.crewmeister.cmcodingchallenge.jobs;
 
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankCacheService;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankCacheManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -10,13 +10,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class CacheScheduler {
-    BundesbankCacheService bundesbankCacheService;
+    BundesbankCacheManager bundesbankCacheManager;
 
     @Scheduled(cron = "0 30 16 * * MON-FRI", zone = "CET")
     public void refreshCache() {
         log.info("Clearing cache..");
-        bundesbankCacheService.clearCache();
+        bundesbankCacheManager.clearCache();
         log.info("Cache Cleared!");
-        bundesbankCacheService.warmingCache();
+        bundesbankCacheManager.warmingCache();
     }
 }

@@ -15,7 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class BundesbankCacheService {
+public class BundesbankCacheManager {
     private final BundesbankExchangeRateProvider bundesbankExchangeRateProvider;
     private final CacheManager cacheManager;
 
@@ -40,5 +40,4 @@ public class BundesbankCacheService {
 
         log.info("Cache warmed!");
     }
-
 }
