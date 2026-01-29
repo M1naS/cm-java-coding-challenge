@@ -10,6 +10,8 @@ import com.crewmeister.cmcodingchallenge.network.AppRequest;
 import com.crewmeister.cmcodingchallenge.network.impl.RestTemplateGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     private final BundesbankProperties bundesbankProperties;
     private final RestTemplate restTemplate;
     private final BundesbankMapper bundesbankMapper;
+    private final CacheManager cacheManager;
 
     @Override
     public String getProviderName() {
@@ -200,6 +203,22 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
         log.info("Getting exchange rates of {} from {}", exchangeRequest.getDate().toString(), getProviderName());
 
         try {
+            Cache cache = cacheManager.getCache("bundesbank-rates");
+            Cache.ValueWrapper wrapper;
+            if (cache != null) {
+                wrapper = cache.get(exchangeRequest.getDate().toString());
+                if (wrapper != null) {
+                    log.info("Found exchange rates in cache for {}", exchangeRequest.getDate().toString());
+                    @SuppressWarnings("unchecked")
+                    List<ExchangeRateDto> exchangeRateList = (List<ExchangeRateDto>) wrapper.get();
+
+                    return new BundesbankExchangeDto(exchangeRequest.getDate(), exchangeRateList);
+                } else {
+                    log.warn("Could not find exchange rates in cache for {}", exchangeRequest.getDate().toString());
+                }
+            }
+
+
             return restTemplate.execute(url,
                     HttpMethod.GET,
                     null,
