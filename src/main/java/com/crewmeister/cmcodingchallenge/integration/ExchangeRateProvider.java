@@ -1,7 +1,5 @@
 package com.crewmeister.cmcodingchallenge.integration;
 
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankConvertedCurrencyDto;
-
 import java.util.List;
 
 public interface ExchangeRateProvider {
@@ -13,5 +11,5 @@ public interface ExchangeRateProvider {
 
     ExchangeDto getExchangeRatesByDate(ExchangeRequest exchangeRequest);
 
-    BundesbankConvertedCurrencyDto getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest);
+    ConvertedCurrencyDto getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest);
 }
