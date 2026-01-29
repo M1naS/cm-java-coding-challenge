@@ -129,8 +129,19 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     public List<? extends ExchangeDto> getExchangeRates(
             ExchangeRequest exchangeRequest
     ) {
-        URI uri = UriComponentsBuilder
-                .fromUri(URI.create(bundesbankProperties.getBaseUrl()))
+        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(
+                URI.create(bundesbankProperties.getBaseUrl())
+        );
+
+        BundesbankExchangeRequest bundesbankExchangeRequest = (BundesbankExchangeRequest) exchangeRequest;
+        if (bundesbankExchangeRequest.getNoOfObservations() != null) {
+            uriComponentsBuilder.queryParam(
+                    "lastNObservations",
+                    bundesbankExchangeRequest.getNoOfObservations()
+            );
+        }
+
+        URI uri = uriComponentsBuilder
                 .path(bundesbankProperties.getDataPath())
                 .queryParam("lang", "en")
                 .queryParam("format", "sdmx_csv")

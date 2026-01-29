@@ -37,10 +37,11 @@ public class BundesbankCacheManager {
         Cache cache = cacheManager.getCache("bundesbank-rates");
 
         if (cache != null) {
-            List<? extends ExchangeDto> exchangeRates = List.of(
-                    bundesbankExchangeRateProvider.getExchangeRatesByDate(
-                            BundesbankExchangeRequest.builder().date(LocalDate.now()).build()
-                    )
+            List<? extends ExchangeDto> exchangeRates = bundesbankExchangeRateProvider.getExchangeRates(
+                            BundesbankExchangeRequest.builder()
+                                    .date(LocalDate.now())
+                                    .noOfObservations(10)
+                                    .build()
             );
 
             for (ExchangeDto exchange : exchangeRates) {
