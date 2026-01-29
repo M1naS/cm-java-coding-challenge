@@ -5,13 +5,12 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/api/v1/bundesbank/exchange-rates?lastNObservations=2
+  url: {{baseUrl}}/api/v1/bundesbank/exchange-rates
   body: none
   auth: inherit
 }
 
 params:query {
-  lastNObservations: 2
   ~provider: 
 }
 

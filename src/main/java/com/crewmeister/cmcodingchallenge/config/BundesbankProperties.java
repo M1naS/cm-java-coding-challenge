@@ -12,7 +12,5 @@ import org.springframework.context.annotation.Configuration;
 public class BundesbankProperties {
     private String baseUrl;
     private String specifiedCodelistPath;
-    private String specifiedCodelistFormat;
     private String dataPath;
-    private String dataFormat;
 }

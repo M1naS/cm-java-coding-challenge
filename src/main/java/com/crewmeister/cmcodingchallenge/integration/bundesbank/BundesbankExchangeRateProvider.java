@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +28,8 @@ import java.util.Map;
 @Slf4j
 public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
 
-    private final BundesbankProperties bundesbankProperties;
     private final RestTemplate restTemplate;
+    private final BundesbankProperties bundesbankProperties;
     private final BundesbankMapper bundesbankMapper;
     private final BundesbankCacheStore bundesbankCacheStore;
 
@@ -43,25 +44,25 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     ) {
         List<BundesbankCodelistCurrencyDto> currencyList;
 
-        String url = UriComponentsBuilder
-                .fromUriString(bundesbankProperties.getBaseUrl())
+        URI uri = UriComponentsBuilder
+                .fromUri(URI.create(bundesbankProperties.getBaseUrl()))
                 .path(bundesbankProperties.getSpecifiedCodelistPath())
                 .queryParam("lang", ((BundesbankCodelistCurrencyRequest) currencyRequest).getLang())
-                .queryParam("format", bundesbankProperties.getSpecifiedCodelistFormat())
+                .queryParam("format", "struct_json")
                 .buildAndExpand("CL_BBK_STD_CURRENCY")
-                .toUriString();
+                .toUri();
 
-        HttpGateway client = new RestTemplateGateway(restTemplate);
+        HttpGateway restTemplateGateway = new RestTemplateGateway(restTemplate);
 
-        AppRequest request = AppRequest.builder()
+        AppRequest appRequest = AppRequest.builder()
                 .method(AppRequest.HttpMethod.GET)
-                .url(url)
+                .url(uri.toASCIIString())
                 .build();
 
-        log.info("Getting currencies from {}", getProviderName());
+        log.info("Getting all currency data from {}", getProviderName());
 
         try {
-            currencyList = client.send(request, BundesbankCodelistCurrencyListDto.class).getBody();
+            currencyList = restTemplateGateway.send(appRequest, BundesbankCodelistCurrencyListDto.class).getBody();
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
                     restClientResponseException.getResponseBodyAsString(),
@@ -78,9 +79,11 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<String> getAvailableCurrencies(ExchangeRequest exchangeRequest) {
-        String url = UriComponentsBuilder
-                .fromUriString(bundesbankProperties.getBaseUrl())
+    public List<String> getAvailableCurrencies(
+            ExchangeRequest exchangeRequest
+    ) {
+        URI uri = UriComponentsBuilder
+                .fromUri(URI.create(bundesbankProperties.getBaseUrl()))
                 .path(bundesbankProperties.getDataPath())
                 .queryParam("lang", "en")
                 .queryParam("format", "sdmx_csv")
@@ -91,13 +94,13 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                                 "key", "D..EUR.BB.AC.000"
                         )
                 )
-                .toUriString();
+                .toUri();
 
         HttpGateway restTemplateGateway = new RestTemplateGateway(restTemplate);
 
         AppRequest appRequest = AppRequest.builder()
                 .method(AppRequest.HttpMethod.GET)
-                .url(url)
+                .url(uri.toASCIIString())
                 .build();
 
         log.info("Getting currencies from {}", getProviderName());
@@ -126,25 +129,24 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     public List<? extends ExchangeDto> getExchangeRates(
             ExchangeRequest exchangeRequest
     ) {
-        String url = UriComponentsBuilder
-                .fromUriString(bundesbankProperties.getBaseUrl())
+        URI uri = UriComponentsBuilder
+                .fromUri(URI.create(bundesbankProperties.getBaseUrl()))
                 .path(bundesbankProperties.getDataPath())
                 .queryParam("lang", "en")
-                .queryParam("format", bundesbankProperties.getDataFormat())
-                .queryParam("lastNObservations", exchangeRequest.getLastNObservations())
+                .queryParam("format", "sdmx_csv")
                 .buildAndExpand(
                         Map.of(
                                 "flowRef", "BBEX3",
                                 "key", "D..EUR.BB.AC.000"
                         )
                 )
-                .toUriString();
+                .toUri();
 
         HttpGateway restTemplateGateway = new RestTemplateGateway(restTemplate);
 
         AppRequest appRequest = AppRequest.builder()
                 .method(AppRequest.HttpMethod.GET)
-                .url(url)
+                .url(uri.toASCIIString())
                 .build();
 
         log.info("Getting exchange rates from {}", getProviderName());
@@ -170,12 +172,14 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public ExchangeDto getExchangeRatesByDate(ExchangeRequest exchangeRequest) {
-        String url = UriComponentsBuilder
-                .fromUriString(bundesbankProperties.getBaseUrl())
+    public ExchangeDto getExchangeRatesByDate(
+            ExchangeRequest exchangeRequest
+    ) {
+        URI uri = UriComponentsBuilder
+                .fromUri(URI.create(bundesbankProperties.getBaseUrl()))
                 .path(bundesbankProperties.getDataPath())
                 .queryParam("lang", "en")
-                .queryParam("format", bundesbankProperties.getDataFormat())
+                .queryParam("format", "sdmx_csv")
                 .queryParam("lastNObservations", 1)
                 .queryParam("endPeriod", exchangeRequest.getDate().toString())
                 .buildAndExpand(
@@ -184,13 +188,13 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                                 "key", "D..EUR.BB.AC.000"
                         )
                 )
-                .toUriString();
+                .toUri();
 
         HttpGateway restTemplateGateway = new RestTemplateGateway(restTemplate);
 
         AppRequest appRequest = AppRequest.builder()
                 .method(AppRequest.HttpMethod.GET)
-                .url(url)
+                .url(uri.toASCIIString())
                 .build();
 
         log.info("Getting exchange rates of {} from {}", exchangeRequest.getDate().toString(), getProviderName());
@@ -225,13 +229,14 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public BundesbankConvertedCurrencyDto getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest) {
+    public BundesbankConvertedCurrencyDto getConvertedForeignExchangeAmount(
+            ExchangeRequest exchangeRequest
+    ) {
         BundesbankExchangeRequest bundesbankExchangeRequest = (BundesbankExchangeRequest) exchangeRequest;
         BundesbankConvertedCurrencyDto bundesbankConvertedCurrency;
 
         ExchangeDto exchangeRatesByDate = getExchangeRatesByDate(
                 BundesbankExchangeRequest.builder()
-                        .lastNObservations(1)
                         .date(bundesbankExchangeRequest.getDate())
                         .build()
         );

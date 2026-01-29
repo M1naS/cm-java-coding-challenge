@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 @Builder
 public class BundesbankExchangeRequest implements ExchangeRequest {
-    private final Integer lastNObservations;
     private final LocalDate date;
     private final String currencyCode;
     private final BigDecimal amount;

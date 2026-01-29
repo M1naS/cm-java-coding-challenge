@@ -78,7 +78,6 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
 
         ExchangeDto exchangeRatesByDate = getExchangeRatesByDate(
                 LocalExchangeRequest.builder()
-                        .lastNObservations(1)
                         .date(localExchangeRequest.getDate())
                         .build()
         );
