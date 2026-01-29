@@ -209,11 +209,19 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 return cachedExchange;
             }
 
-            return restTemplateGateway.sendAndExtract(
+            ExchangeDto returnedExchange = restTemplateGateway.sendAndExtract(
                     appRequest,
                     null,
                     bundesbankMapper::parseToExchangeRate
             );
+
+            bundesbankCacheStore.putByDate(
+                    "bundesbank-rates",
+                    returnedExchange.getDate(),
+                    returnedExchange.getRates()
+            );
+
+            return returnedExchange;
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
                     restClientResponseException.getResponseBodyAsString(),

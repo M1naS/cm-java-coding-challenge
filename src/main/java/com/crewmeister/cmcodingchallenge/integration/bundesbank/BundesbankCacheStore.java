@@ -18,6 +18,16 @@ import java.util.List;
 public class BundesbankCacheStore {
     private final CacheManager cacheManager;
 
+    public void putByDate(String cacheName, LocalDate date, List<ExchangeRateDto> rates) {
+        Cache cache = cacheManager.getCache(cacheName);
+        if (cache != null) {
+            cache.put(date.toString(), rates);
+            log.info("Cached rates for {}", date);
+        } else {
+            log.warn("Cache {} not found", cacheName);
+        }
+    }
+
     public ExchangeDto getByDate(String cacheName, LocalDate date) {
         ExchangeDto bundesbankExchange = null;
         Cache cache = cacheManager.getCache(cacheName);
