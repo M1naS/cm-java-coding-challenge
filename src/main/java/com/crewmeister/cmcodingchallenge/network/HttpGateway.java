@@ -6,5 +6,10 @@ import java.io.InputStream;
 
 public interface HttpGateway {
     <T> ResponseEntity<T> send(AppRequest appRequest, Class<T> responseType);
-    <T> InputStream stream(AppRequest appRequest, Class<T> requestType);
+    <T> T sendAndExtract(AppRequest appRequest, Class<T> requestType, StreamExtractor<T> streamExtractor);
+
+    @FunctionalInterface
+    interface StreamExtractor<T> {
+        T extract(InputStream inputStream);
+    }
 }

@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.InputStream;
-
 @RequiredArgsConstructor
 public class RestTemplateGateway implements HttpGateway {
 
@@ -26,14 +24,13 @@ public class RestTemplateGateway implements HttpGateway {
     }
 
     @Override
-    public <T> InputStream stream(AppRequest appRequest, Class<T> requestType) {
+    public <T> T sendAndExtract(AppRequest appRequest, Class<T> requestType, StreamExtractor<T> streamExtractor) {
         return restTemplate.execute(appRequest.getUrl(),
                 HttpMethod.valueOf(appRequest.getMethod().toString()),
                 restTemplate.httpEntityCallback(
                         new HttpEntity<>(appRequest.getBody(), appRequest.getHeaders()),
                         requestType
                 ),
-                HttpInputMessage::getBody
-        );
+                response -> streamExtractor.extract(response.getBody()));
     }
 }
