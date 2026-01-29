@@ -269,7 +269,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
             }
 
             bundesbankConvertedCurrency = BundesbankConvertedCurrencyDto.builder()
-                    .date(bundesbankExchangeRequest.getDate())
+                    .date(exchangeRatesByDate.getDate())
                     .rate(returnedRate)
                     .currencyCode(bundesbankExchangeRequest.getCurrencyCode())
                     .amount(bundesbankExchangeRequest.getAmount())
