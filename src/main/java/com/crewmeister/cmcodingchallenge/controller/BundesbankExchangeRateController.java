@@ -9,6 +9,7 @@ import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankEx
 import com.crewmeister.cmcodingchallenge.integration.local.dto.LocalExchangeRequest;
 import com.crewmeister.cmcodingchallenge.network.AppResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,7 @@ public class BundesbankExchangeRateController {
 
     private final Map<String, ExchangeRateProvider> providers;
 
+    @Cacheable(value = "currencies", key = "'all_' + #lang", condition = "#lang == 'en' || #lang == 'de'")
     @GetMapping("/all/currencies")
     public ResponseEntity<AppResponse<List<? extends CurrencyDto>>> getAllCurrencies(
             @RequestParam(required = false, defaultValue = "de") String lang
@@ -42,6 +44,7 @@ public class BundesbankExchangeRateController {
         );
     }
 
+    @Cacheable(value = "currencies", key = "'available'")
     @GetMapping("/available/currencies")
     public ResponseEntity<AppResponse<List<String>>> getAvailableCurrencies(
             @RequestParam(required = false, defaultValue = "bundesbank") String provider

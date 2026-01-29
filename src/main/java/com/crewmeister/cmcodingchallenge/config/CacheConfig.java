@@ -19,7 +19,10 @@ public class CacheConfig {
 
     @Bean
     public CacheManager cacheManager(Caffeine<Object, Object> caffeine) {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("bundesbank-rates");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager(
+                "bundesbank-rates",
+                "currencies"
+        );
         cacheManager.setCaffeine(caffeine);
         return cacheManager;
     }
