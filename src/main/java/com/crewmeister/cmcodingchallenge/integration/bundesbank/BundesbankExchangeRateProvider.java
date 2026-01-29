@@ -10,7 +10,6 @@ import com.crewmeister.cmcodingchallenge.network.AppRequest;
 import com.crewmeister.cmcodingchallenge.network.impl.RestTemplateGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
@@ -94,22 +93,20 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 )
                 .toUriString();
 
-//        HttpGateway client = new RestTemplateGateway(restTemplate);
-        RestTemplate restTemplate = new RestTemplate();
+        HttpGateway restTemplateGateway = new RestTemplateGateway(restTemplate);
 
-//        AppRequest request = AppRequest.builder()
-//                .method(AppRequest.HttpMethod.GET)
-//                .url(url)
-//                .build();
+        AppRequest appRequest = AppRequest.builder()
+                .method(AppRequest.HttpMethod.GET)
+                .url(url)
+                .build();
 
         log.info("Getting currencies from {}", getProviderName());
 
         try {
-//            currencyList = client.send(request, BundesbankDataCurrencyListDto.class).getBody();
-            return restTemplate.execute(url,
-                    HttpMethod.GET,
+            return restTemplateGateway.sendAndExtract(
+                    appRequest,
                     null,
-                    response -> bundesbankMapper.parseToAvailableCurrencies(response.getBody())
+                    bundesbankMapper::parseToAvailableCurrencies
             );
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
@@ -143,21 +140,20 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 )
                 .toUriString();
 
-//        HttpGateway client = new RestTemplateGateway(restTemplate);
-        RestTemplate restTemplate = new RestTemplate();
+        HttpGateway restTemplateGateway = new RestTemplateGateway(restTemplate);
 
-//        AppRequest request = AppRequest.builder()
-//                .method(AppRequest.HttpMethod.GET)
-//                .url(url)
-//                .build();
+        AppRequest appRequest = AppRequest.builder()
+                .method(AppRequest.HttpMethod.GET)
+                .url(url)
+                .build();
 
         log.info("Getting exchange rates from {}", getProviderName());
 
         try {
-            return restTemplate.execute(url,
-                    HttpMethod.GET,
+            return restTemplateGateway.sendAndExtract(
+                    appRequest,
                     null,
-                    response -> bundesbankMapper.parseToExchangeRateList(response.getBody())
+                    bundesbankMapper::parseToExchangeRateList
             );
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
@@ -190,13 +186,12 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 )
                 .toUriString();
 
-//        HttpGateway client = new RestTemplateGateway(restTemplate);
-        RestTemplate restTemplate = new RestTemplate();
+        HttpGateway restTemplateGateway = new RestTemplateGateway(restTemplate);
 
-//        AppRequest request = AppRequest.builder()
-//                .method(AppRequest.HttpMethod.GET)
-//                .url(url)
-//                .build();
+        AppRequest appRequest = AppRequest.builder()
+                .method(AppRequest.HttpMethod.GET)
+                .url(url)
+                .build();
 
         log.info("Getting exchange rates of {} from {}", exchangeRequest.getDate().toString(), getProviderName());
 
@@ -210,10 +205,10 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 return cachedExchange;
             }
 
-            return restTemplate.execute(url,
-                    HttpMethod.GET,
+            return restTemplateGateway.sendAndExtract(
+                    appRequest,
                     null,
-                    response -> bundesbankMapper.parseToExchangeRate(response.getBody())
+                    bundesbankMapper::parseToExchangeRate
             );
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
