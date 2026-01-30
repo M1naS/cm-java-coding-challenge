@@ -6,6 +6,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.BufferedInputStream;
+import java.io.InputStream;
+
 @RequiredArgsConstructor
 public class RestTemplateGateway implements HttpGateway {
 
@@ -31,6 +34,10 @@ public class RestTemplateGateway implements HttpGateway {
                         new HttpEntity<>(appRequest.getBody(), appRequest.getHeaders()),
                         requestType
                 ),
-                response -> streamExtractor.extract(response.getBody()));
+                response -> {
+                    InputStream inputStream = new BufferedInputStream(response.getBody(), 64 * 1024);
+
+                    return streamExtractor.extract(inputStream);
+                });
     }
 }
