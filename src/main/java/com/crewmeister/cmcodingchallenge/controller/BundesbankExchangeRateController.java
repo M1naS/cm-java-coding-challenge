@@ -2,10 +2,8 @@ package com.crewmeister.cmcodingchallenge.controller;
 
 import com.crewmeister.cmcodingchallenge.exception.AppException;
 import com.crewmeister.cmcodingchallenge.integration.*;
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankExchangeRateProvider;
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankCodelistCurrencyRequest;
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeRequest;
-import com.crewmeister.cmcodingchallenge.integration.local.dto.LocalExchangeRequest;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankExchangeRateService;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.*;
 import com.crewmeister.cmcodingchallenge.network.AppResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,24 +15,20 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 
-@RestController()
+@RestController
 @RequestMapping("/api/v1/bundesbank")
 @RequiredArgsConstructor
 public class BundesbankExchangeRateController {
-
-    private final Map<String, ExchangeRateProvider> providers;
+    private final BundesbankExchangeRateService bundesbankExchangeRateService;
 
     @Cacheable(value = "currencies", key = "'all_' + #lang", condition = "#lang == 'en' || #lang == 'de'")
     @GetMapping("/all/currencies")
-    public ResponseEntity<AppResponse<List<? extends CurrencyDto>>> getAllCurrencies(
+    public ResponseEntity<AppResponse<List<BundesbankCodelistCurrencyDto>>> getAllCurrencies(
             @RequestParam(required = false, defaultValue = "de") String lang
     ) {
-        BundesbankCodelistCurrencyRequest bundesbankCodelistCurrencyRequest = new BundesbankCodelistCurrencyRequest(lang);
-
-        AppResponse<List<? extends CurrencyDto>> currenciesAppResponse = new AppResponse<>(
-                ((BundesbankExchangeRateProvider) providers.get("bundesbank")).getAllCurrencies(bundesbankCodelistCurrencyRequest),
+        AppResponse<List<BundesbankCodelistCurrencyDto>> currenciesAppResponse = new AppResponse<>(
+                bundesbankExchangeRateService.getAllCurrencies(lang),
                 HttpStatus.OK.value()
         );
         return new ResponseEntity<>(
@@ -45,22 +39,9 @@ public class BundesbankExchangeRateController {
 
     @Cacheable(value = "currencies", key = "'available'")
     @GetMapping("/available/currencies")
-    public ResponseEntity<AppResponse<List<String>>> getAvailableCurrencies(
-            @RequestParam(required = false, defaultValue = "bundesbank") String provider
-    ) {
-        if (providers.get(provider) == null) {
-            throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
-        }
-
-        ExchangeRequest exchangeRequest;
-        if (provider.equals("local")) {
-            exchangeRequest = LocalExchangeRequest.builder().build();
-        } else {
-            exchangeRequest = BundesbankExchangeRequest.builder().build();
-        }
-
+    public ResponseEntity<AppResponse<List<String>>> getAvailableCurrencies() {
         AppResponse<List<String>> currenciesAppResponse = new AppResponse<>(
-                providers.get(provider).getAvailableCurrencies(exchangeRequest),
+                bundesbankExchangeRateService.getAvailableCurrencies(),
                 HttpStatus.OK.value()
         );
         return new ResponseEntity<>(
@@ -70,24 +51,9 @@ public class BundesbankExchangeRateController {
     }
 
     @GetMapping("/exchange-rates")
-    public ResponseEntity<AppResponse<List<? extends ExchangeDto>>> getExchangeRates(
-            @RequestParam(required = false, defaultValue = "bundesbank") String provider
-    ) {
-        if (providers.get(provider) == null) {
-            throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
-        }
-
-        ExchangeRequest exchangeRequest;
-         if (provider.equals("local")) {
-            exchangeRequest = LocalExchangeRequest.builder().build();
-        } else {
-            exchangeRequest = BundesbankExchangeRequest.builder().build();
-        }
-
-        AppResponse<List<? extends ExchangeDto>> exchangeAppResponse;
-
-        exchangeAppResponse = new AppResponse<>(
-                (providers.get(provider)).getCachedExchangeRates(exchangeRequest),
+    public ResponseEntity<AppResponse<List<BundesbankExchangeDto>>> getExchangeRates() {
+        AppResponse<List<BundesbankExchangeDto>> exchangeAppResponse = new AppResponse<>(
+                bundesbankExchangeRateService.getCachedExchangeRates(),
                 HttpStatus.OK.value()
         );
 
@@ -104,27 +70,10 @@ public class BundesbankExchangeRateController {
     public ResponseEntity<AppResponse<ExchangeDto>> getExchangeRatesByDate(
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-            LocalDate date,
-
-            @RequestParam(required = false, defaultValue = "bundesbank") String provider
+            LocalDate date
     ) {
-        if (providers.get(provider) == null) {
-            throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
-        }
-
-        ExchangeRequest exchangeRequest;
-        if (provider.equals("local")) {
-            exchangeRequest = LocalExchangeRequest.builder().build();
-        } else {
-            exchangeRequest = BundesbankExchangeRequest.builder()
-                    .date(date)
-                    .build();
-        }
-
-        AppResponse<ExchangeDto> exchangeAppResponse;
-
-        exchangeAppResponse = new AppResponse<>(
-                providers.get(provider).getExchangeRatesByDate(exchangeRequest),
+        AppResponse<ExchangeDto> exchangeAppResponse = new AppResponse<>(
+                bundesbankExchangeRateService.getExchangeRatesByDate(date),
                 HttpStatus.OK.value()
         );
 
@@ -138,33 +87,26 @@ public class BundesbankExchangeRateController {
     }
 
     @GetMapping("/convert")
-    public ResponseEntity<AppResponse<ConvertedCurrencyDto>> getConvertedForeignExchangeAmount(
+    public ResponseEntity<AppResponse<BundesbankConvertedCurrencyDto>> getConvertedForeignExchangeAmount(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
             @RequestParam String currencyCode,
-            @RequestParam BigDecimal amount,
-            @RequestParam(required = false, defaultValue = "bundesbank") String provider
+            @RequestParam BigDecimal amount
     ) {
-        if (providers.get(provider) == null) {
-            throw new AppException("Provider not found", HttpStatus.NOT_FOUND);
-        }
+        BundesbankConvertedCurrencyDto bundesbankConvertedCurrency = BundesbankConvertedCurrencyDto.builder()
+                .date(date)
+//                .rate(returnedRate)
+                .currencyCode(currencyCode)
+                .amount(amount)
+                .converted(
+                        bundesbankExchangeRateService.getConvertedForeignExchangeAmount(
+                                date,
+                                currencyCode,
+                                amount
+                        )
+                ).build();
 
-        ExchangeRequest exchangeRequest;
-        if (provider.equals("local")) {
-            exchangeRequest = LocalExchangeRequest.builder()
-                    .date(date)
-                    .currencyCode(currencyCode)
-                    .amount(amount)
-                    .build();
-        } else {
-            exchangeRequest = BundesbankExchangeRequest.builder()
-                    .date(date)
-                    .currencyCode(currencyCode)
-                    .amount(amount)
-                    .build();
-        }
-
-        AppResponse<ConvertedCurrencyDto> exchangeAppResponse = new AppResponse<>(
-                providers.get(provider).getConvertedForeignExchangeAmount(exchangeRequest),
+        AppResponse<BundesbankConvertedCurrencyDto> exchangeAppResponse = new AppResponse<>(
+                bundesbankConvertedCurrency,
                 HttpStatus.OK.value()
         );
 

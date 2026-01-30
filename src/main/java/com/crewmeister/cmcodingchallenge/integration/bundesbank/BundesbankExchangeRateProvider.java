@@ -11,28 +11,25 @@ import com.crewmeister.cmcodingchallenge.network.impl.RestTemplateGateway;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-@Service("bundesbank")
 @Slf4j
+@Component
 public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
 
     private final RestTemplate restTemplate;
     private final BundesbankProperties bundesbankProperties;
     private final BundesbankMapper bundesbankMapper;
-    private final BundesbankCacheStore bundesbankCacheStore;
 
     @Override
     public String getProviderName() {
@@ -40,7 +37,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
 
-    public List<? extends CurrencyDto> getAllCurrencies(
+    public List<BundesbankCodelistCurrencyDto> getAllCurrencies(
             CurrencyRequest currencyRequest
     ) {
         List<BundesbankCodelistCurrencyDto> currencyList;
@@ -128,7 +125,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<? extends ExchangeDto> getExchangeRates(
+    public List<BundesbankExchangeDto> getExchangeRates(
             ExchangeRequest exchangeRequest
     ) {
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(
@@ -185,20 +182,8 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
         }
     }
 
-    public List<? extends ExchangeDto> getCachedExchangeRates(
-            ExchangeRequest exchangeRequest
-    ) {
-        List<? extends ExchangeDto> exchangeList = bundesbankCacheStore.getAll();
-
-        if (exchangeList.isEmpty()) {
-            return getExchangeRates(exchangeRequest);
-        } else {
-            return exchangeList;
-        }
-    }
-
     @Override
-    public ExchangeDto getExchangeRatesByDate(
+    public BundesbankExchangeDto getExchangeRatesByDate(
             ExchangeRequest exchangeRequest
     ) {
         URI uri = UriComponentsBuilder
@@ -227,26 +212,11 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
         log.info("Getting exchange rates of {} from {}", exchangeRequest.getDate().toString(), getProviderName());
 
         try {
-            ExchangeDto cachedExchange =  bundesbankCacheStore.getByDate(
-                    exchangeRequest.getDate()
-            );
-
-            if (cachedExchange != null) {
-                return cachedExchange;
-            }
-
-            ExchangeDto returnedExchange = restTemplateGateway.sendAndExtract(
+            return restTemplateGateway.sendAndExtract(
                     appRequest,
                     null,
                     bundesbankMapper::parseToExchangeRate
             );
-
-            bundesbankCacheStore.putByDate(
-                    returnedExchange.getDate(),
-                    returnedExchange.getRates()
-            );
-
-            return returnedExchange;
         } catch (RestClientResponseException restClientResponseException) {
             throw new BundesbankExchangeRateException(
                     restClientResponseException.getResponseBodyAsString(),
@@ -259,61 +229,5 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                     HttpStatus.INTERNAL_SERVER_ERROR
             );
         }
-    }
-
-    @Override
-    public BundesbankConvertedCurrencyDto getConvertedForeignExchangeAmount(
-            ExchangeRequest exchangeRequest
-    ) {
-        BundesbankExchangeRequest bundesbankExchangeRequest = (BundesbankExchangeRequest) exchangeRequest;
-        BundesbankConvertedCurrencyDto bundesbankConvertedCurrency;
-
-        ExchangeDto exchangeRatesByDate = getExchangeRatesByDate(
-                BundesbankExchangeRequest.builder()
-                        .date(bundesbankExchangeRequest.getDate())
-                        .build()
-        );
-
-        log.info("Converting {}, from {} to EUR for date {} using {}",
-                bundesbankExchangeRequest.getAmount(),
-                bundesbankExchangeRequest.getCurrencyCode(),
-                bundesbankExchangeRequest.getDate().toString(),
-                getProviderName()
-        );
-
-        if (exchangeRatesByDate == null)
-            throw new AppException("Could not get exchange rate", HttpStatus.INTERNAL_SERVER_ERROR);
-
-        try {
-            BigDecimal returnedRate = new BigDecimal(
-                    String.valueOf(
-                            exchangeRatesByDate.getRates().stream()
-                                    .filter(
-                                            rate -> rate.getCode()
-                                            .equals(bundesbankExchangeRequest.getCurrencyCode())
-                                    )
-                                    .findFirst().map(ExchangeRateDto::getRate)
-                                    .orElse(new BigDecimal(0))
-                    )
-            );
-
-            if (returnedRate.compareTo(BigDecimal.ZERO) == 0) {
-                throw new AppException("Exchange rate not found", HttpStatus.BAD_REQUEST);
-            }
-
-            bundesbankConvertedCurrency = BundesbankConvertedCurrencyDto.builder()
-                    .date(exchangeRatesByDate.getDate())
-                    .rate(returnedRate)
-                    .currencyCode(bundesbankExchangeRequest.getCurrencyCode())
-                    .amount(bundesbankExchangeRequest.getAmount())
-                    .converted(
-                            bundesbankExchangeRequest.getAmount().divide(returnedRate, 2, RoundingMode.HALF_UP)
-                    ).build();
-
-        } catch (IllegalArgumentException illegalArgumentException) {
-            throw new  AppException("No support for currency " + bundesbankExchangeRequest.getCurrencyCode(), HttpStatus.BAD_REQUEST);
-        }
-
-        return bundesbankConvertedCurrency;
     }
 }

@@ -1,8 +1,6 @@
 package com.crewmeister.cmcodingchallenge.integration.bundesbank;
 
-import com.crewmeister.cmcodingchallenge.integration.ExchangeDto;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeDto;
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.Cache;
@@ -15,7 +13,7 @@ import java.util.List;
 @Slf4j
 @Service
 public class BundesbankCacheManager {
-    private final BundesbankExchangeRateProvider bundesbankExchangeRateProvider;
+    private final BundesbankExchangeRateService bundesbankExchangeRateService;
     private final CacheManager cacheManager;
 
     public void clearCache() {
@@ -36,13 +34,10 @@ public class BundesbankCacheManager {
         Cache cache = cacheManager.getCache("bundesbank-rates");
 
         if (cache != null) {
-            List<? extends ExchangeDto> exchangeRates = bundesbankExchangeRateProvider.getExchangeRates(
-                            BundesbankExchangeRequest.builder().build()
-            );
+            List<BundesbankExchangeDto> exchangeRates = bundesbankExchangeRateService.getExchangeRates();
 
-            for (ExchangeDto exchange : exchangeRates) {
-                BundesbankExchangeDto bundesbankExchange = (BundesbankExchangeDto) exchange;
-                cache.put(bundesbankExchange.getDate(), bundesbankExchange.getRates());
+            for (BundesbankExchangeDto exchange : exchangeRates) {
+                cache.put(exchange.getDate(), exchange.getRates());
             }
         }
 

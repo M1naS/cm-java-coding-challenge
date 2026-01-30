@@ -28,8 +28,8 @@ public class BundesbankCacheStore {
         }
     }
 
-    public ExchangeDto getByDate(LocalDate date) {
-        ExchangeDto bundesbankExchange = null;
+    public BundesbankExchangeDto getByDate(LocalDate date) {
+        BundesbankExchangeDto bundesbankExchange = null;
         Cache cache = cacheManager.getCache("bundesbank-rates");
         Cache.ValueWrapper wrapper;
         if (cache != null) {
@@ -48,7 +48,7 @@ public class BundesbankCacheStore {
         return bundesbankExchange;
     }
 
-    public List<ExchangeDto> getAll() {
+    public List<BundesbankExchangeDto> getAll() {
         Cache cache = cacheManager.getCache("bundesbank-rates");
 
         if (cache != null) {
@@ -59,7 +59,7 @@ public class BundesbankCacheStore {
 
 
             Set<Map.Entry<LocalDate, List<ExchangeRateDto>>> exchangesSet = caffeineCache.asMap().entrySet();
-            ExchangeDto[] exchanges = new ExchangeDto[exchangesSet.size()];
+            BundesbankExchangeDto[] exchanges = new BundesbankExchangeDto[exchangesSet.size()];
 
             int i = 0;
             for (Map.Entry<LocalDate, List<ExchangeRateDto>> exchange : exchangesSet) {

@@ -3,9 +3,7 @@ package com.crewmeister.cmcodingchallenge.integration.local;
 import com.crewmeister.cmcodingchallenge.exception.SerializationException;
 import com.crewmeister.cmcodingchallenge.integration.*;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankMapper;
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankConvertedCurrencyDto;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.BundesbankExchangeDto;
-import com.crewmeister.cmcodingchallenge.integration.local.dto.LocalExchangeRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
@@ -13,8 +11,6 @@ import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -44,7 +40,7 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
-    public List<? extends ExchangeDto> getExchangeRates(ExchangeRequest exchangeRequest) {
+    public List<BundesbankExchangeDto> getExchangeRates(ExchangeRequest exchangeRequest) {
         List<BundesbankExchangeDto> bundesbankExchangeList;
 
         Resource resource = resourceLoader.getResource("classpath:payloads/exchange-data.csv");
@@ -55,11 +51,6 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
         }
 
         return bundesbankExchangeList;
-    }
-
-    @Override
-    public List<? extends ExchangeDto> getCachedExchangeRates(ExchangeRequest exchangeRequest) {
-        return getExchangeRates(LocalExchangeRequest.builder().build());
     }
 
     @Override
@@ -74,40 +65,5 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
         }
 
         return bundesbankExchange;
-    }
-
-    @Override
-    public BundesbankConvertedCurrencyDto getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest) {
-        BundesbankConvertedCurrencyDto bundesbankConvertedCurrency;
-        LocalExchangeRequest localExchangeRequest = (LocalExchangeRequest) exchangeRequest;
-
-        ExchangeDto exchangeRatesByDate = getExchangeRatesByDate(
-                LocalExchangeRequest.builder()
-                        .date(localExchangeRequest.getDate())
-                        .build()
-        );
-
-        BigDecimal returnedRate = new BigDecimal(
-                String.valueOf(
-                        exchangeRatesByDate.getRates().stream()
-                                .filter(
-                                        rate -> rate.getCode()
-                                                .equals(localExchangeRequest.getCurrencyCode())
-                                )
-                                .findFirst().map(ExchangeRateDto::getRate)
-                                .orElse(new BigDecimal(0))
-                )
-        );
-
-        bundesbankConvertedCurrency = BundesbankConvertedCurrencyDto.builder()
-                .date(exchangeRatesByDate.getDate())
-                .rate(returnedRate)
-                .currencyCode(localExchangeRequest.getCurrencyCode())
-                .amount(localExchangeRequest.getAmount())
-                .converted(
-                        localExchangeRequest.getAmount().divide(returnedRate, 2, RoundingMode.HALF_UP)
-                ).build();
-
-        return bundesbankConvertedCurrency;
     }
 }
