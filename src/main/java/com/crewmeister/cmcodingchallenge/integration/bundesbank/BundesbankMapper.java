@@ -16,9 +16,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Getter
@@ -30,12 +29,10 @@ public class BundesbankMapper implements IntegrationMapper {
     public List<String> parseToAvailableCurrencies(InputStream csvInputStream) {
         List<String> currencyList = new ArrayList<>();
 
-        try {
-            CsvSchema schema = CsvSchema.emptySchema().withHeader();
-
-            MappingIterator<JsonNode> nodeIterator = csvMapper.readerFor(JsonNode.class)
-                    .with(schema)
-                    .readValues(csvInputStream);
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+        try(MappingIterator<JsonNode> nodeIterator = csvMapper.readerFor(JsonNode.class)
+                .with(schema)
+                .readValues(csvInputStream)) {
 
             while (nodeIterator.hasNext()) {
                 currencyList.add(nodeIterator.next().get("BBK_STD_CURRENCY").asText());
@@ -49,13 +46,11 @@ public class BundesbankMapper implements IntegrationMapper {
 
     @Override
     public BundesbankExchangeDto parseToExchangeRate(InputStream csvInputStream) {
-        try {
-            CsvSchema schema = CsvSchema.emptySchema().withHeader();
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
 
-            MappingIterator<JsonNode> nodeIterator = csvMapper.readerFor(JsonNode.class)
-                    .with(schema)
-                    .readValues(csvInputStream);
-
+        try(MappingIterator<JsonNode> nodeIterator = csvMapper.readerFor(JsonNode.class)
+                .with(schema)
+                .readValues(csvInputStream)) {
             BundesbankExchangeDto bundesbankExchange = new BundesbankExchangeDto();
             while (nodeIterator.hasNext()) {
                 List<ExchangeRateDto> exchangeRates = new ArrayList<>();
@@ -95,34 +90,24 @@ public class BundesbankMapper implements IntegrationMapper {
 
     @Override
     public List<BundesbankExchangeDto> parseToExchangeRateList(InputStream csvInputStream) {
-        List<BundesbankExchangeDto> bundesbankExchangeList = new ArrayList<>();
+        Map<LocalDate, List<ExchangeRateDto>> exchangeRatesMap = new TreeMap<>();
 
-        try {
-            CsvSchema schema = CsvSchema.emptySchema().withHeader();
-
-            MappingIterator<JsonNode> nodeIterator = csvMapper.readerFor(JsonNode.class)
-                    .with(schema)
-                    .readValues(csvInputStream);
+        CsvSchema schema = CsvSchema.emptySchema().withHeader();
+        try (MappingIterator<JsonNode> nodeIterator = csvMapper.readerFor(JsonNode.class)
+                .with(schema)
+                .readValues(csvInputStream)) {
 
             while (nodeIterator.hasNext()) {
-                BundesbankExchangeDto bundesbankExchange = new BundesbankExchangeDto();
-                List<ExchangeRateDto> exchangeRates = new ArrayList<>();
-
                 JsonNode node = nodeIterator.next();
 
                 String date = node.get("TIME_PERIOD").asText();
 
-                List<ExchangeRateDto> dateRates = bundesbankExchangeList.stream()
-                        .filter(exchange -> exchange
-                                .getDate()
-                                .equals(LocalDate.parse(date))
-                        )
-                        .findFirst().map(BundesbankExchangeDto::getRates)
-                        .orElse(Collections.emptyList());
+                LocalDate parsedDate = LocalDate.parse(date);
+                List<ExchangeRateDto> datesRates = exchangeRatesMap.getOrDefault(parsedDate, new ArrayList<>());
 
-                if (dateRates.isEmpty()) {
+                if (datesRates.isEmpty()) {
                     if (!node.get("OBS_STATUS").asText().equals("K")) {
-                        exchangeRates.add(
+                        datesRates.add(
                                 new ExchangeRateDto(
                                         node.get("BBK_STD_CURRENCY").asText(),
                                         new BigDecimal(node.get("OBS_VALUE").asText())
@@ -130,12 +115,10 @@ public class BundesbankMapper implements IntegrationMapper {
                         );
                     }
 
-                    bundesbankExchange.setDate(LocalDate.parse(date));
-                    bundesbankExchange.setRates(exchangeRates);
-                    bundesbankExchangeList.add(bundesbankExchange);
+                    exchangeRatesMap.putIfAbsent(parsedDate, datesRates);
                 } else {
                     if (!node.get("OBS_STATUS").asText().equals("K")) {
-                        dateRates.add(
+                        exchangeRatesMap.get(parsedDate).add(
                                 new ExchangeRateDto(
                                         node.get("BBK_STD_CURRENCY").asText(),
                                         new BigDecimal(node.get("OBS_VALUE").asText())
@@ -143,13 +126,13 @@ public class BundesbankMapper implements IntegrationMapper {
                         );
                     }
                 }
-                if (exchangeRates.isEmpty()) {
-                    bundesbankExchangeList.remove(new BundesbankExchangeDto(LocalDate.parse(date), exchangeRates));
-                }
             }
-            return bundesbankExchangeList;
+            return exchangeRatesMap.entrySet().stream()
+                    .filter(entry -> !entry.getValue().isEmpty())
+                    .map(entry -> new BundesbankExchangeDto(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList());
         } catch (IOException ioException) {
-            throw new SerializationException("Could not deserialize exchange rate list", ioException);
+                throw new SerializationException("Could not deserialize exchange rate list", ioException);
         }
     }
 }
