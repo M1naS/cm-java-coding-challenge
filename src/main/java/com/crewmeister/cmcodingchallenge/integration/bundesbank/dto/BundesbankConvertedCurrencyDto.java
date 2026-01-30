@@ -11,7 +11,7 @@ import java.time.LocalDate;
 @Builder
 public class BundesbankConvertedCurrencyDto implements ConvertedCurrencyDto {
     public final LocalDate date;
-    public final BigDecimal rate;
+//    public final BigDecimal rate;
     public final String currencyCode;
     public final BigDecimal amount;
     public final BigDecimal converted;
