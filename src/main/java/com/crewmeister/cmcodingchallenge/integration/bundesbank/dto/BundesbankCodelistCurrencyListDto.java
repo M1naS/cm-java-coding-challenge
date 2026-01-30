@@ -27,14 +27,9 @@ public class BundesbankCodelistCurrencyListDto extends ArrayList<BundesbankCodel
 
                 if (currencyNodeArray.isArray()) {
                     for (JsonNode currencyNode : currencyNodeArray) {
-                        if (!(
-                                currencyNode.get("id").textValue().startsWith("_") ||
-                                currencyNode.get("id").textValue().chars().anyMatch(Character::isDigit)
-                        )) {
                             currencyList.add(
                                     mapper.treeToValue(currencyNode, BundesbankCodelistCurrencyDto.class)
                             );
-                        }
                     }
                 }
             } catch (IOException ioException) {

@@ -19,10 +19,10 @@ import java.util.Optional;
 public class CacheConfig {
     private final BundesbankProperties bundesbankProperties;
 
-    @Value("${application.cache.rates-name}")
-    private Optional<String> ratesCacheName;
-    @Value("${application.cache.currencies-name}")
-    private Optional<String> currenciesCacheName;
+    @Value("${application.cache.rates-name:rates}")
+    private String ratesCacheName;
+    @Value("${application.cache.currencies-name:currencies}")
+    private String currenciesCacheName;
 
     @Bean
     public CacheManager cacheManager() {
@@ -31,13 +31,13 @@ public class CacheConfig {
 
         Integer numOfDaysSinceApiWasCreated = calculateWorkingDaysSince("1999-01-01");
 
-        cacheManager.registerCustomCache(ratesCacheName.orElse("rates"),
+        cacheManager.registerCustomCache(ratesCacheName,
                 Caffeine.newBuilder()
                         .initialCapacity(apiLimit.orElse(numOfDaysSinceApiWasCreated))
                         .recordStats()
                         .build());
 
-        cacheManager.registerCustomCache(currenciesCacheName.orElse("currencies"),
+        cacheManager.registerCustomCache(currenciesCacheName,
                 Caffeine.newBuilder()
                         .initialCapacity(5)
                         .recordStats()

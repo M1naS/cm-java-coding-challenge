@@ -19,11 +19,11 @@ import java.util.*;
 public class BundesbankCacheStore {
     private final CacheManager cacheManager;
 
-    @Value("${application.cache.rates-name}")
-    private Optional<String> ratesCacheName;
+    @Value("${application.cache.rates-name:rates}")
+    private String ratesCacheName;
 
     public void putByDate(LocalDate date, List<ExchangeRateDto> rates) {
-        Cache cache = cacheManager.getCache(ratesCacheName.orElse("rates"));
+        Cache cache = cacheManager.getCache(ratesCacheName);
         if (cache != null) {
             cache.put(date, rates);
             log.info("Cached rates for {}", date);
@@ -34,7 +34,7 @@ public class BundesbankCacheStore {
 
     public BundesbankExchangeDto getByDate(LocalDate date) {
         BundesbankExchangeDto bundesbankExchange = null;
-        Cache cache = cacheManager.getCache(ratesCacheName.orElse("rates"));
+        Cache cache = cacheManager.getCache(ratesCacheName);
         Cache.ValueWrapper wrapper;
         if (cache != null) {
             wrapper = cache.get(date);
@@ -53,7 +53,7 @@ public class BundesbankCacheStore {
     }
 
     public List<BundesbankExchangeDto> getAll() {
-        Cache cache = cacheManager.getCache(ratesCacheName.orElse("rates"));
+        Cache cache = cacheManager.getCache(ratesCacheName);
 
         if (cache != null) {
             @SuppressWarnings("unchecked")

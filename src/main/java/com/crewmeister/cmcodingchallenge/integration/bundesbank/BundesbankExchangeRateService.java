@@ -5,13 +5,16 @@ import com.crewmeister.cmcodingchallenge.integration.ExchangeRateDto;
 import com.crewmeister.cmcodingchallenge.integration.bundesbank.dto.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,10 +23,18 @@ public class BundesbankExchangeRateService {
     private final BundesbankCacheStore bundesbankCacheStore;
     private final BundesbankExchangeRateProvider bundesbankExchangeRateProvider;
 
+    @Value("${external.api.bundesbank.specified-codelist.non-currencies}")
+    private String ignoredCurrencies;
+
     public List<BundesbankCodelistCurrencyDto> getAllCurrencies(String lang) {
+
+        List<String> ignoredCurrenciesList = Arrays.asList(ignoredCurrencies.split(","));
+
         return bundesbankExchangeRateProvider.getAllCurrencies(
                 new BundesbankCodelistCurrencyRequest(lang)
-        );
+        ).stream()
+                .filter(currency -> !ignoredCurrenciesList.contains(currency.getCode()))
+                .collect(Collectors.toList());
     }
 
     public List<String> getAvailableCurrencies() {

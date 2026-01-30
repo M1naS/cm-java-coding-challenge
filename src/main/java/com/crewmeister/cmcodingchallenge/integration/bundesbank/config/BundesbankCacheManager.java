@@ -11,7 +11,6 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -20,14 +19,14 @@ public class BundesbankCacheManager implements ICacheManager {
     private final CacheManager cacheManager;
     private final BundesbankExchangeRateService bundesbankExchangeRateService;
 
-    @Value("${application.cache.rates-name}")
-    private Optional<String> ratesCacheName;
+    @Value("${application.cache.rates-name:rates}")
+    private String ratesCacheName;
 
     @Override
     public void clearCache() {
         log.info("Clearing cache..");
 
-        Cache cache = cacheManager.getCache(ratesCacheName.orElse("rates"));
+        Cache cache = cacheManager.getCache(ratesCacheName);
         if (cache != null) {
             cache.clear();
             log.info("Cache Cleared!");
@@ -40,7 +39,7 @@ public class BundesbankCacheManager implements ICacheManager {
     public void warmingCache() {
         log.info("Warming up the cache...");
 
-        Cache cache = cacheManager.getCache(ratesCacheName.orElse("rates"));
+        Cache cache = cacheManager.getCache(ratesCacheName);
 
         if (cache != null) {
             List<BundesbankExchangeDto> exchangeRates = bundesbankExchangeRateService.getExchangeRates();
