@@ -13,4 +13,5 @@ public class BundesbankProperties {
     private String baseUrl;
     private String specifiedCodelistPath;
     private String dataPath;
+    private Integer dataPathApiLimit;
 }

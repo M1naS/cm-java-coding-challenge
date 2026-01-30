@@ -87,7 +87,7 @@ public class BundesbankExchangeRateController {
         AppResponse<List<? extends ExchangeDto>> exchangeAppResponse;
 
         exchangeAppResponse = new AppResponse<>(
-                providers.get(provider).getExchangeRates(exchangeRequest),
+                (providers.get(provider)).getCachedExchangeRates(exchangeRequest),
                 HttpStatus.OK.value()
         );
 

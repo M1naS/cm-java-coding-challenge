@@ -58,6 +58,11 @@ public class LocalExchangeRateProvider implements ExchangeRateProvider {
     }
 
     @Override
+    public List<? extends ExchangeDto> getCachedExchangeRates(ExchangeRequest exchangeRequest) {
+        return getExchangeRates(LocalExchangeRequest.builder().build());
+    }
+
+    @Override
     public BundesbankExchangeDto getExchangeRatesByDate(ExchangeRequest exchangeRequest) {
         BundesbankExchangeDto bundesbankExchange;
 

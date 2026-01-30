@@ -9,6 +9,8 @@ public interface ExchangeRateProvider {
 
     List<? extends ExchangeDto> getExchangeRates(ExchangeRequest exchangeRequest);
 
+    List<? extends ExchangeDto> getCachedExchangeRates(ExchangeRequest exchangeRequest);
+
     ExchangeDto getExchangeRatesByDate(ExchangeRequest exchangeRequest);
 
     ConvertedCurrencyDto getConvertedForeignExchangeAmount(ExchangeRequest exchangeRequest);

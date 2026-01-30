@@ -10,7 +10,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -18,22 +18,22 @@ import java.util.List;
 public class BundesbankCacheStore {
     private final CacheManager cacheManager;
 
-    public void putByDate(String cacheName, LocalDate date, List<ExchangeRateDto> rates) {
-        Cache cache = cacheManager.getCache(cacheName);
+    public void putByDate(LocalDate date, List<ExchangeRateDto> rates) {
+        Cache cache = cacheManager.getCache("bundesbank-rates");
         if (cache != null) {
-            cache.put(date.toString(), rates);
+            cache.put(date, rates);
             log.info("Cached rates for {}", date);
         } else {
-            log.warn("Cache {} not found", cacheName);
+            log.warn("Cache bundesbank-rates not found");
         }
     }
 
-    public ExchangeDto getByDate(String cacheName, LocalDate date) {
+    public ExchangeDto getByDate(LocalDate date) {
         ExchangeDto bundesbankExchange = null;
-        Cache cache = cacheManager.getCache(cacheName);
+        Cache cache = cacheManager.getCache("bundesbank-rates");
         Cache.ValueWrapper wrapper;
         if (cache != null) {
-            wrapper = cache.get(date.toString());
+            wrapper = cache.get(date);
             if (wrapper != null) {
                 log.info("Found exchange rates in cache for {}", date);
                 @SuppressWarnings("unchecked")
@@ -43,8 +43,40 @@ public class BundesbankCacheStore {
                 log.warn("Could not find exchange rates in cache for {}", date);
             }
         } else  {
-            log.warn("Cache {} not found", cacheName);
+            log.warn("Cache bundesbank-rates not found");
         }
         return bundesbankExchange;
+    }
+
+    public List<ExchangeDto> getAll() {
+        Cache cache = cacheManager.getCache("bundesbank-rates");
+
+        if (cache != null) {
+            @SuppressWarnings("unchecked")
+            com.github.benmanes.caffeine.cache.Cache<LocalDate, List<ExchangeRateDto>> caffeineCache =
+                    (com.github.benmanes.caffeine.cache.Cache<LocalDate, List<ExchangeRateDto>>)
+                            cache.getNativeCache();
+
+
+            Set<Map.Entry<LocalDate, List<ExchangeRateDto>>> exchangesSet = caffeineCache.asMap().entrySet();
+            ExchangeDto[] exchanges = new ExchangeDto[exchangesSet.size()];
+
+            int i = 0;
+            for (Map.Entry<LocalDate, List<ExchangeRateDto>> exchange : exchangesSet) {
+                exchanges[i] = new BundesbankExchangeDto(exchange.getKey(), exchange.getValue());
+                i++;
+            }
+
+            Arrays.parallelSort(exchanges,
+                    Comparator.comparingLong(
+                            (ExchangeDto exchange) -> exchange.getDate().toEpochDay())
+                            .reversed()
+            );
+
+            return Arrays.asList(exchanges);
+        } else  {
+            log.warn("Cache bundesbank-rates not found");
+        }
+        return new ArrayList<>();
     }
 }

@@ -22,6 +22,7 @@ import java.math.RoundingMode;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service("bundesbank")
@@ -87,6 +88,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 .path(bundesbankProperties.getDataPath())
                 .queryParam("lang", "en")
                 .queryParam("format", "sdmx_csv")
+                .queryParam("detail", "dataonly")
                 .queryParam("lastNObservations", 1)
                 .buildAndExpand(
                         Map.of(
@@ -133,11 +135,11 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 URI.create(bundesbankProperties.getBaseUrl())
         );
 
-        BundesbankExchangeRequest bundesbankExchangeRequest = (BundesbankExchangeRequest) exchangeRequest;
-        if (bundesbankExchangeRequest.getNoOfObservations() != null) {
+        Optional<Integer> apiLimit = Optional.ofNullable(bundesbankProperties.getDataPathApiLimit());
+        if (apiLimit.isPresent() && apiLimit.get() >= 0) {
             uriComponentsBuilder.queryParam(
                     "lastNObservations",
-                    bundesbankExchangeRequest.getNoOfObservations()
+                    bundesbankProperties.getDataPathApiLimit()
             );
         }
 
@@ -145,6 +147,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 .path(bundesbankProperties.getDataPath())
                 .queryParam("lang", "en")
                 .queryParam("format", "sdmx_csv")
+                .queryParam("detail", "dataonly")
                 .buildAndExpand(
                         Map.of(
                                 "flowRef", "BBEX3",
@@ -182,6 +185,18 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
         }
     }
 
+    public List<? extends ExchangeDto> getCachedExchangeRates(
+            ExchangeRequest exchangeRequest
+    ) {
+        List<? extends ExchangeDto> exchangeList = bundesbankCacheStore.getAll();
+
+        if (exchangeList.isEmpty()) {
+            return getExchangeRates(exchangeRequest);
+        } else {
+            return exchangeList;
+        }
+    }
+
     @Override
     public ExchangeDto getExchangeRatesByDate(
             ExchangeRequest exchangeRequest
@@ -191,6 +206,7 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
                 .path(bundesbankProperties.getDataPath())
                 .queryParam("lang", "en")
                 .queryParam("format", "sdmx_csv")
+                .queryParam("detail", "dataonly")
                 .queryParam("lastNObservations", 1)
                 .queryParam("endPeriod", exchangeRequest.getDate().toString())
                 .buildAndExpand(
@@ -212,7 +228,6 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
 
         try {
             ExchangeDto cachedExchange =  bundesbankCacheStore.getByDate(
-                    "bundesbank-rates",
                     exchangeRequest.getDate()
             );
 
@@ -227,7 +242,6 @@ public class BundesbankExchangeRateProvider implements ExchangeRateProvider {
             );
 
             bundesbankCacheStore.putByDate(
-                    "bundesbank-rates",
                     returnedExchange.getDate(),
                     returnedExchange.getRates()
             );

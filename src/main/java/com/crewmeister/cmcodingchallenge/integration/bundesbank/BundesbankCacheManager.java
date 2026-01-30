@@ -9,7 +9,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -38,15 +37,12 @@ public class BundesbankCacheManager {
 
         if (cache != null) {
             List<? extends ExchangeDto> exchangeRates = bundesbankExchangeRateProvider.getExchangeRates(
-                            BundesbankExchangeRequest.builder()
-                                    .date(LocalDate.now())
-                                    .noOfObservations(10)
-                                    .build()
+                            BundesbankExchangeRequest.builder().build()
             );
 
             for (ExchangeDto exchange : exchangeRates) {
                 BundesbankExchangeDto bundesbankExchange = (BundesbankExchangeDto) exchange;
-                cache.put(bundesbankExchange.getDate().toString(), bundesbankExchange.getRates());
+                cache.put(bundesbankExchange.getDate(), bundesbankExchange.getRates());
             }
         }
 
