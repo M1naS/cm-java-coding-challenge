@@ -1,6 +1,6 @@
 package com.crewmeister.cmcodingchallenge.jobs;
 
-import com.crewmeister.cmcodingchallenge.integration.bundesbank.BundesbankCacheManager;
+import com.crewmeister.cmcodingchallenge.integration.bundesbank.config.BundesbankCacheManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

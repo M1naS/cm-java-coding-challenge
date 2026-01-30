@@ -22,7 +22,7 @@ import java.util.List;
 public class BundesbankExchangeRateController {
     private final BundesbankExchangeRateService bundesbankExchangeRateService;
 
-    @Cacheable(value = "currencies", key = "'all_' + #lang", condition = "#lang == 'en' || #lang == 'de'")
+    @Cacheable(value = "${application.cache.currencies-name}", key = "'all_' + #lang", condition = "#lang == 'en' || #lang == 'de'")
     @GetMapping("/all/currencies")
     public ResponseEntity<AppResponse<List<BundesbankCodelistCurrencyDto>>> getAllCurrencies(
             @RequestParam(required = false, defaultValue = "de") String lang
@@ -37,7 +37,7 @@ public class BundesbankExchangeRateController {
         );
     }
 
-    @Cacheable(value = "currencies", key = "'available'")
+    @Cacheable(value = "${application.cache.currencies-name}", key = "'available'")
     @GetMapping("/available/currencies")
     public ResponseEntity<AppResponse<List<String>>> getAvailableCurrencies() {
         AppResponse<List<String>> currenciesAppResponse = new AppResponse<>(

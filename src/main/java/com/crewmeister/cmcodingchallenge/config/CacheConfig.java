@@ -2,6 +2,7 @@ package com.crewmeister.cmcodingchallenge.config;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
@@ -18,6 +19,11 @@ import java.util.Optional;
 public class CacheConfig {
     private final BundesbankProperties bundesbankProperties;
 
+    @Value("${application.cache.rates-name}")
+    private Optional<String> ratesCacheName;
+    @Value("${application.cache.currencies-name}")
+    private Optional<String> currenciesCacheName;
+
     @Bean
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
@@ -25,13 +31,13 @@ public class CacheConfig {
 
         Integer numOfDaysSinceApiWasCreated = calculateWorkingDaysSince("1999-01-01");
 
-        cacheManager.registerCustomCache("bundesbank-rates",
+        cacheManager.registerCustomCache(ratesCacheName.orElse("rates"),
                 Caffeine.newBuilder()
                         .initialCapacity(apiLimit.orElse(numOfDaysSinceApiWasCreated))
                         .recordStats()
                         .build());
 
-        cacheManager.registerCustomCache("currencies",
+        cacheManager.registerCustomCache(currenciesCacheName.orElse("currencies"),
                 Caffeine.newBuilder()
                         .initialCapacity(5)
                         .recordStats()
