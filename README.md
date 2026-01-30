@@ -1,87 +1,171 @@
-# Crewmeister Test Assignment - Java Backend Developer
+# Currency Exchange Service
+##### [Crewmeister Test Assignment - Java Backend Developer](https://github.com/crewmeister/java-coding-challenge)
+###### 
+A RESTful microservice that provides foreign exchange rates by consuming the Bundesbank API.
+### Prerequisites
+* Java 11
+* Maven 3.x
 
-## Intro
-Thank you for taking the time to complete this challenge as part of your application at Crewmeister!
-We are taking development skills very serious and invest a lot of time to find the right candidate. 
+### How to Run
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/M1naS/cm-java-coding-challenge.git](https://github.com/M1naS/cm-java-coding-challenge.git)
+    cd java-coding-challenge
+    ```
+2.  **Build and Run:**
+    ```bash
+    mvn spring-boot:run
+    ```
+3.  **Verify:**
+    The application will start on `http://localhost:8080` and will be ready after the `Cache warmed!` message.
+---
 
-At Crewmeister we aim to write excellent software and are convinced that this requires a high level of passion for and 
-attention to topics such as software design and principles, best practices and clean code. We take pride in the fact
-that the code we produce is extensible, testable, maintainable and runs fast.  
+### Technology Overview
+- **Jackson:** was used for `json` parsing, also used it for `csv` *for convenience*
+  - Used the ``jackson-module-afterburner`` to boost performance
+- **Caffeine:** was used for caching, all the API use cache and the ``getExchangeRates`` are cached on startup
+  - To control how many observations are cached on startup uncomment and set ``external.api.bundesbank.data-path-api-limit`` to any number, by default it will cache everything, it will take a few seconds and then ``Cache warmed!`` is shown which means everything is ready
 
-At the same time, we always try to improve the effectiveness of our evaluation and improve the candidate journey
-throughout the process. Our aim is that our hiring process is mutually inspiring and feels like a gain for
-both parties regardless of the outcome. If you feel to give us feedback on that, please don't hesitate to do so. 
+### Test
+- Run 
+    ```bash
+    mvn test
+    ```
+- **To Test the APIs, included are `.bru` files for [Bruno](https://www.usebruno.com/)**
 
-## The Challenge
+### API Documentation
 
-Your task is to create a foreign exchange rate service as SpringBoot-based microservice. 
+#### 1. Get All Currencies
+#### `GET /api/v1/bundesbank/all/currencies`
+Gets all currencies, returning their codes and names
 
-The exchange rates can be received from [2]. This is a public service provided by the German central bank.
+**Query Params:**
 
-As we are using user story format to specify our requirements, here are the user stories to implement:
+| Name   | Type     | Value        |
+|:-------|:---------|--------------|
+| `lang` | `String` | `en` or `de` |
 
-- As a client, I want to get a list of all available currencies
-- As a client, I want to get all EUR-FX exchange rates at all available dates as a collection
-- As a client, I want to get the EUR-FX exchange rate at particular day
-- As a client, I want to get a foreign exchange amount for a given currency converted to EUR on a particular day
+**Request Body:**
+```json
+{
+  ...
+    {
+      "name": "United Arab Emirates dirham",
+      "id": "AED"
+    },
+  ...
+}
+```
+---
+#### 2. Get Available Currencies
+#### `GET /api/v1/bundesbank/available/currencies`
+Gets available currencies, returning their codes
 
-If you think that your service would require storage, please use H2 for simplicity, even if this would not be your choice if 
-you would implement an endpoint for real clients. 
+**Request Body:**
+```json
+{
+  ...
+    [
+      "AUD",
+      "BGN",
+      "BRL",
+      "CAD",
+      ...
+    ],
+  ...
+}
+```
+---
+#### 3. Get Exchange Rates
+#### `GET /api/v1/bundesbank/exchange-rates`
+Gets all available exchange rates for all dates
 
-We are looking out for the following aspects in your submission:
-- Well structured and thought-through api and endpoint design 
-- Clean code
-- Application of best practices & design patterns
+**Request Body:**
+```json
+{
+  [
+  ...
+    {
+      "date": "2026-01-29",
+      "rates": [
+        {
+          "code": "AUD",
+          "rate": 1.6935
+        },
+        {
+          "code": "BRL",
+          "rate": 6.2011
+        },
+        {
+          "code": "CAD",
+          "rate": 1.6186
+        },
+        ...
+    }
+  ]
+  ...
+}
+```
+---
+#### 4. Get Exchange Rate by Date
+#### `GET /api/v1/bundesbank/exchange-rates`
+Gets exchange rates by date
 
+**Query Params:**
 
-That being said it is not enough to "just make it work", show your full potential to write excellent software
- for Crewmeister ! 
+| Name   | Type   | Value      |
+|:-------|:-------|------------|
+| `date` | `Date` | `YYYY-MM-DD` |
 
-## AI Usage Guidelines
- 
-We encourage you to use AI tools if that reflects your normal development workflow. However, **we expect transparency** in how you use these tools.
- 
-**Required Documentation:**
-  - Create an `AI_USAGE.md` file that includes:
-    - Which AI tools you used (e.g., ChatGPT, Claude, GitHub Copilot)
-    - Key prompts/questions you asked
-    - Relevant AI responses that shaped your solution
-    - Your reasoning for accepting, modifying, or rejecting AI suggestions
- 
-**What We're Looking For:**
-  - Understanding of the code you submit (AI-assisted or not)
-  - Thoughtful use of AI as a development tool
-  - Your own problem-solving and decision-making process
- 
-Simply asking an AI to "build the entire application" and submitting that output will not demonstrate your skills effectively.
- 
-## Setup
-#### Requirements
-- Java 11 (will run with OpenSDK 15 as well)
-- Maven 3.x
+**Request Body:**
+```json
+{
+  ...
+  {
+      "date": "2026-01-29",
+      "rates": [
+        {
+          "code": "AUD",
+          "rate": 1.6935
+        },
+        {
+          "code": "BRL",
+          "rate": 6.2011
+        },
+        {
+          "code": "CAD",
+          "rate": 1.6186
+        },
+    ...
+  }
+}
+```
+---
+#### 5. Get Converted Foreign Exchange Amount
+#### `GET /api/v1/bundesbank/convert`
+Gets converted amount calculated depending on date, currencyCode and amount 
 
-#### Project
-The project was generated through the Spring initializer [1] for Java
- 11 with dev tools and Spring Web as dependencies. In order to build and 
- run it, you just need to click the green arrow in the Application class in your Intellij 
- CE IDE or run the following command from your project root und Linux or ios. 
+**Query Params:**
 
-````shell script
-$ mvn spring-boot:run
-````
+| Name           | Type     | Value                               |
+|:---------------|:---------|-------------------------------------|
+| `date`         | `Date`   | `YYYY-MM-DD`                        |
+| `currencyCode` | `String` | `USD` or `JPY` or any currency code |
+| `amount`       | `Number` | `10`                                |
 
-After running, the project, switch to your browser and hit http://localhost:8080/api/currencies. You should see some 
-demo output. 
+**Request Body:**
+```json
+{
+  ...
+    {
+      "date": "2026-01-29",
+      "currencyCode": "USD",
+      "amount": 10,
+      "converted": 8.36
+    }
+  ...
+}
+```
 
-
-[1] https://start.spring.io/
-
-[2] [Bundesbank Daily Exchange Rates](https://www.bundesbank.de/dynamic/action/en/statistics/time-series-databases/time-series-databases/759784/759784?statisticType=BBK_ITS&listId=www_sdks_b01012_3&treeAnchor=WECHSELKURSE)
-
-#### Submission
-- Submit completed project via the Greenhouse link in the email received from the Recruitment Manager
-- Please send us a link to a github repo that with the solution and make sure that that the branch/repo is not private.
-- Please do not submit zipped files
-
-
-
+---
+Data is fetched from [Bundesbank Daily Exchange Rates](https://www.bundesbank.de/dynamic/action/en/statistics/time-series-databases/time-series-databases/759784/759784?statisticType=BBK_ITS&listId=www_sdks_b01012_3&treeAnchor=WECHSELKURSE)
