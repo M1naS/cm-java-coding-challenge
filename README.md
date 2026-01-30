@@ -9,7 +9,7 @@ A RESTful microservice that provides foreign exchange rates by consuming the Bun
 ### How to Run
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/M1naS/cm-java-coding-challenge.git](https://github.com/M1naS/cm-java-coding-challenge.git)
+    git clone https://github.com/M1naS/cm-java-coding-challenge.git
     cd java-coding-challenge
     ```
 2.  **Build and Run:**
@@ -27,11 +27,8 @@ A RESTful microservice that provides foreign exchange rates by consuming the Bun
   - To control how many observations are cached on startup uncomment and set ``external.api.bundesbank.data-path-api-limit`` to any number, by default it will cache everything, it will take a few seconds and then ``Cache warmed!`` is shown which means everything is ready
 
 ### Test
-- Run 
-    ```bash
-    mvn test
-    ```
-- **To Test the APIs, included are `.bru` files for [Bruno](https://www.usebruno.com/)**
+- Run ``mvn test``
+- To Test the APIs, included are `.bru` files for [Bruno](https://www.usebruno.com/)
 
 ### API Documentation
 
