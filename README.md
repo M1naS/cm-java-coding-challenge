@@ -26,6 +26,17 @@ A RESTful microservice that provides foreign exchange rates by consuming the Bun
 - **Caffeine:** was used for caching, all the API use cache and the ``getExchangeRates`` are cached on startup
   - To control how many observations are cached on startup uncomment and set ``external.api.bundesbank.data-path-api-limit`` to any number, by default it will cache everything, it will take a few seconds and then ``Cache warmed!`` is shown which means everything is ready
 
+
+### 💡 Post-Submission note:
+Upon reflecting on my solution, I wanted to note:
+
+- What I did: I used ``MappingIterator`` to stream the input. This keeps memory low while reading the CSV.
+
+- The next step: For the output, I would use ``StreamingResponseBody`` and Jackson's ``SequenceWriter``.
+
+- The benefit: This would stream the JSON back to the user one object at a time. It prevents the server from buffering a giant list in memory.
+
+
 ### Test
 - Run ``mvn test``
 - To Test the APIs, included are `.bru` files for [Bruno](https://www.usebruno.com/)
